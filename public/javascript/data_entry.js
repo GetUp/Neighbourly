@@ -9554,63 +9554,90 @@ var author$project$Main$canvasHeader = A2(
 		[
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Address')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Outcome')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Dutton Support')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Return')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Voter ID')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Dutton last')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Notes')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Last saved')
 				])),
 			A2(
 			elm$html$Html$th,
-			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+				]),
 			_List_fromArray(
 				[
 					elm$html$Html$text('Actions')
@@ -9790,7 +9817,10 @@ var author$project$Main$viewCanvas = F2(
 				[
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							elm$html$Html$text(address.address),
@@ -9808,7 +9838,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9822,7 +9855,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9837,7 +9873,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9852,7 +9891,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9867,7 +9909,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9882,7 +9927,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9900,7 +9948,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
@@ -9917,7 +9968,10 @@ var author$project$Main$viewCanvas = F2(
 						])),
 					A2(
 					elm$html$Html$td,
-					_List_Nil,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
 					_List_fromArray(
 						[
 							A2(
