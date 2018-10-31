@@ -242,9 +242,7 @@ post '/unclaim_meshblock/:id' do
 end
 
 get '/data_entry' do
-  authorised do
-    haml :data_entry, locals: {page: 'data_entry'}, layout: false
-  end
+  haml :data_entry, locals: {page: 'data_entry'}, layout: false
 end
 
 post '/survey' do
