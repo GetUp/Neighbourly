@@ -243,7 +243,7 @@ end
 
 get '/data_entry' do
   authorised do
-    haml :data_entry, locals: {page: 'data_entry'}
+    haml :data_entry, locals: {page: 'data_entry'}, layout: false
   end
 end
 

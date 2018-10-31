@@ -5580,18 +5580,10 @@ var CurrySoftware$elm_datepicker$DatePicker$init = _Utils_Tuple2(
 			today: CurrySoftware$elm_datepicker$DatePicker$Date$initDate
 		}),
 	A2(elm$core$Task$perform, CurrySoftware$elm_datepicker$DatePicker$CurrentDate, justinmimbs$date$Date$today));
-var author$project$Main$SetDate = function (a) {
-	return {$: 'SetDate', a: a};
-};
 var author$project$Main$ToDatePicker = function (a) {
 	return {$: 'ToDatePicker', a: a};
 };
 var author$project$Main$Unknown = {$: 'Unknown'};
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
 var elm$core$Platform$Cmd$batch = _Platform_batch;
@@ -5605,10 +5597,6 @@ var author$project$Main$init = function (_n0) {
 		elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
-					A2(
-					elm$core$Task$perform,
-					A2(elm$core$Basics$composeR, elm$core$Maybe$Just, author$project$Main$SetDate),
-					justinmimbs$date$Date$today),
 					A2(elm$core$Platform$Cmd$map, author$project$Main$ToDatePicker, datePickerFx)
 				])));
 };
@@ -5617,6 +5605,147 @@ var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
 var author$project$Main$subscriptions = function (model) {
 	return elm$core$Platform$Sub$none;
 };
+var CurrySoftware$elm_datepicker$DatePicker$Disabled = function (a) {
+	return {$: 'Disabled', a: a};
+};
+var CurrySoftware$elm_datepicker$DatePicker$FailedInput = function (a) {
+	return {$: 'FailedInput', a: a};
+};
+var CurrySoftware$elm_datepicker$DatePicker$Invalid = function (a) {
+	return {$: 'Invalid', a: a};
+};
+var CurrySoftware$elm_datepicker$DatePicker$None = {$: 'None'};
+var CurrySoftware$elm_datepicker$DatePicker$Picked = function (a) {
+	return {$: 'Picked', a: a};
+};
+var elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var CurrySoftware$elm_datepicker$DatePicker$update = F3(
+	function (settings, msg, _n0) {
+		var model = _n0.a;
+		var forceOpen = model.forceOpen;
+		var focused = model.focused;
+		switch (msg.$) {
+			case 'CurrentDate':
+				var date = msg.a;
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{
+								focused: elm$core$Maybe$Just(date),
+								today: date
+							})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+			case 'ChangeFocus':
+				var date = msg.a;
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{
+								focused: elm$core$Maybe$Just(date)
+							})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+			case 'Pick':
+				var date = msg.a;
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{focused: elm$core$Maybe$Nothing, inputText: elm$core$Maybe$Nothing, open: false})),
+					CurrySoftware$elm_datepicker$DatePicker$Picked(date));
+			case 'Text':
+				var text = msg.a;
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{
+								inputText: elm$core$Maybe$Just(text)
+							})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+			case 'SubmitText':
+				if (forceOpen) {
+					return _Utils_Tuple2(
+						CurrySoftware$elm_datepicker$DatePicker$DatePicker(model),
+						CurrySoftware$elm_datepicker$DatePicker$None);
+				} else {
+					var dateEvent = function () {
+						var _n5 = settings.parser(
+							A2(elm$core$Maybe$withDefault, '', model.inputText));
+						if (_n5.$ === 'Ok') {
+							var date = _n5.a;
+							return settings.isDisabled(date) ? CurrySoftware$elm_datepicker$DatePicker$FailedInput(
+								CurrySoftware$elm_datepicker$DatePicker$Disabled(date)) : CurrySoftware$elm_datepicker$DatePicker$Picked(date);
+						} else {
+							var e = _n5.a;
+							return CurrySoftware$elm_datepicker$DatePicker$FailedInput(
+								CurrySoftware$elm_datepicker$DatePicker$Invalid(e));
+						}
+					}();
+					return _Utils_Tuple2(
+						CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+							_Utils_update(
+								model,
+								{
+									focused: function () {
+										if (dateEvent.$ === 'Picked') {
+											var date = dateEvent.a;
+											return elm$core$Maybe$Just(date);
+										} else {
+											return model.focused;
+										}
+									}(),
+									inputText: function () {
+										if (dateEvent.$ === 'Picked') {
+											return elm$core$Maybe$Nothing;
+										} else {
+											return model.inputText;
+										}
+									}()
+								})),
+						dateEvent);
+				}
+			case 'Focus':
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{forceOpen: false, open: true})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+			case 'Blur':
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{open: forceOpen})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+			case 'MouseDown':
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{forceOpen: true})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+			default:
+				return _Utils_Tuple2(
+					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
+						_Utils_update(
+							model,
+							{forceOpen: false})),
+					CurrySoftware$elm_datepicker$DatePicker$None);
+		}
+	});
+var author$project$Main$Invalid = {$: 'Invalid'};
+var author$project$Main$Valid = {$: 'Valid'};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5739,6 +5868,11 @@ var elm$core$String$right = F2(
 			-n,
 			elm$core$String$length(string),
 			string);
+	});
+var elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
 	});
 var justinmimbs$date$Date$monthToNumber = function (m) {
 	switch (m.$) {
@@ -6906,15 +7040,6 @@ var justinmimbs$date$Date$WeekAndWeekday = F2(
 	function (a, b) {
 		return {$: 'WeekAndWeekday', a: a, b: b};
 	});
-var elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var elm$core$String$toInt = _String_toInt;
 var elm$parser$Parser$mapChompedString = elm$parser$Parser$Advanced$mapChompedString;
 var justinmimbs$date$Date$int1 = A2(
@@ -7221,138 +7346,16 @@ var CurrySoftware$elm_datepicker$DatePicker$defaultSettings = {
 	placeholder: 'Please pick a date...',
 	yearFormatter: elm$core$String$fromInt
 };
-var CurrySoftware$elm_datepicker$DatePicker$Disabled = function (a) {
-	return {$: 'Disabled', a: a};
-};
-var CurrySoftware$elm_datepicker$DatePicker$FailedInput = function (a) {
-	return {$: 'FailedInput', a: a};
-};
-var CurrySoftware$elm_datepicker$DatePicker$Invalid = function (a) {
-	return {$: 'Invalid', a: a};
-};
-var CurrySoftware$elm_datepicker$DatePicker$None = {$: 'None'};
-var CurrySoftware$elm_datepicker$DatePicker$Picked = function (a) {
-	return {$: 'Picked', a: a};
-};
-var CurrySoftware$elm_datepicker$DatePicker$update = F3(
-	function (settings, msg, _n0) {
-		var model = _n0.a;
-		var forceOpen = model.forceOpen;
-		var focused = model.focused;
-		switch (msg.$) {
-			case 'CurrentDate':
-				var date = msg.a;
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{
-								focused: elm$core$Maybe$Just(date),
-								today: date
-							})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-			case 'ChangeFocus':
-				var date = msg.a;
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{
-								focused: elm$core$Maybe$Just(date)
-							})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-			case 'Pick':
-				var date = msg.a;
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{focused: elm$core$Maybe$Nothing, inputText: elm$core$Maybe$Nothing, open: false})),
-					CurrySoftware$elm_datepicker$DatePicker$Picked(date));
-			case 'Text':
-				var text = msg.a;
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{
-								inputText: elm$core$Maybe$Just(text)
-							})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-			case 'SubmitText':
-				if (forceOpen) {
-					return _Utils_Tuple2(
-						CurrySoftware$elm_datepicker$DatePicker$DatePicker(model),
-						CurrySoftware$elm_datepicker$DatePicker$None);
-				} else {
-					var dateEvent = function () {
-						var _n5 = settings.parser(
-							A2(elm$core$Maybe$withDefault, '', model.inputText));
-						if (_n5.$ === 'Ok') {
-							var date = _n5.a;
-							return settings.isDisabled(date) ? CurrySoftware$elm_datepicker$DatePicker$FailedInput(
-								CurrySoftware$elm_datepicker$DatePicker$Disabled(date)) : CurrySoftware$elm_datepicker$DatePicker$Picked(date);
-						} else {
-							var e = _n5.a;
-							return CurrySoftware$elm_datepicker$DatePicker$FailedInput(
-								CurrySoftware$elm_datepicker$DatePicker$Invalid(e));
-						}
-					}();
-					return _Utils_Tuple2(
-						CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-							_Utils_update(
-								model,
-								{
-									focused: function () {
-										if (dateEvent.$ === 'Picked') {
-											var date = dateEvent.a;
-											return elm$core$Maybe$Just(date);
-										} else {
-											return model.focused;
-										}
-									}(),
-									inputText: function () {
-										if (dateEvent.$ === 'Picked') {
-											return elm$core$Maybe$Nothing;
-										} else {
-											return model.inputText;
-										}
-									}()
-								})),
-						dateEvent);
-				}
-			case 'Focus':
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{forceOpen: false, open: true})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-			case 'Blur':
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{open: forceOpen})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-			case 'MouseDown':
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{forceOpen: true})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-			default:
-				return _Utils_Tuple2(
-					CurrySoftware$elm_datepicker$DatePicker$DatePicker(
-						_Utils_update(
-							model,
-							{forceOpen: false})),
-					CurrySoftware$elm_datepicker$DatePicker$None);
-		}
+var author$project$Main$datepickerSettings = _Utils_update(
+	CurrySoftware$elm_datepicker$DatePicker$defaultSettings,
+	{
+		inputClassList: _List_fromArray(
+			[
+				_Utils_Tuple2('mdl-textfield__input', true)
+			]),
+		inputId: elm$core$Maybe$Just('date-field'),
+		placeholder: ''
 	});
-var author$project$Main$Invalid = {$: 'Invalid'};
-var author$project$Main$Valid = {$: 'Valid'};
 var author$project$Main$LoadAddresses = function (a) {
 	return {$: 'LoadAddresses', a: a};
 };
@@ -7360,19 +7363,21 @@ var author$project$Main$AddressAndCanvasData = F2(
 	function (addresses, canvas) {
 		return {addresses: addresses, canvas: canvas};
 	});
-var author$project$Main$Address = F2(
-	function (gnaf_pid, address) {
-		return {address: address, gnaf_pid: gnaf_pid};
+var author$project$Main$Address = F3(
+	function (gnaf_pid, address, street) {
+		return {address: address, gnaf_pid: gnaf_pid, street: street};
 	});
 var elm$json$Json$Decode$field = _Json_decodeField;
 var elm$json$Json$Decode$list = _Json_decodeList;
+var elm$json$Json$Decode$map3 = _Json_map3;
 var elm$json$Json$Decode$string = _Json_decodeString;
 var author$project$Main$addressDecoder = elm$json$Json$Decode$list(
-	A3(
-		elm$json$Json$Decode$map2,
+	A4(
+		elm$json$Json$Decode$map3,
 		author$project$Main$Address,
 		A2(elm$json$Json$Decode$field, 'gnaf_pid', elm$json$Json$Decode$string),
-		A2(elm$json$Json$Decode$field, 'address', elm$json$Json$Decode$string)));
+		A2(elm$json$Json$Decode$field, 'address', elm$json$Json$Decode$string),
+		A2(elm$json$Json$Decode$field, 'street', elm$json$Json$Decode$string)));
 var author$project$Main$Survey = F5(
 	function (gnaf_pid, block_id, survey_on, updated_at, responses) {
 		return {block_id: block_id, gnaf_pid: gnaf_pid, responses: responses, survey_on: survey_on, updated_at: updated_at};
@@ -8289,7 +8294,7 @@ var author$project$Main$update = F2(
 					return (elm$core$String$length(newBlockId) === 11) ? _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{addresses: _List_Nil, blockId: newBlockId, status: 'loading..', valid: author$project$Main$Valid}),
+							{addresses: _List_Nil, blockId: newBlockId, status: 'Loading..', valid: author$project$Main$Valid}),
 						A2(author$project$Main$getAddressesForBlockId, newBlockId, existingDate)) : _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -8443,7 +8448,7 @@ var author$project$Main$update = F2(
 					elm$core$Platform$Cmd$none);
 			default:
 				var subMsg = msg.a;
-				var _n6 = A3(CurrySoftware$elm_datepicker$DatePicker$update, CurrySoftware$elm_datepicker$DatePicker$defaultSettings, subMsg, model.datePicker);
+				var _n6 = A3(CurrySoftware$elm_datepicker$DatePicker$update, author$project$Main$datepickerSettings, subMsg, model.datePicker);
 				var newDatePicker = _n6.a;
 				var event = _n6.b;
 				return _Utils_Tuple2(
@@ -9541,6 +9546,76 @@ var CurrySoftware$elm_datepicker$DatePicker$view = F3(
 var author$project$Main$UpdateBlockID = function (a) {
 	return {$: 'UpdateBlockID', a: a};
 };
+var elm$html$Html$th = _VirtualDom_node('th');
+var author$project$Main$canvasHeader = A2(
+	elm$html$Html$tr,
+	_List_Nil,
+	_List_fromArray(
+		[
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Address')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Outcome')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Dutton Support')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Return')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Voter ID')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Dutton last')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Notes')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Last saved')
+				])),
+			A2(
+			elm$html$Html$th,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text('Actions')
+				]))
+		]));
 var author$project$Main$statusMessage = function (model) {
 	var _n0 = model.status;
 	if (_n0 === '') {
@@ -9550,17 +9625,65 @@ var author$project$Main$statusMessage = function (model) {
 		return status;
 	}
 };
-var author$project$Main$validationClass = function (model) {
-	var _n0 = model.valid;
-	switch (_n0.$) {
-		case 'Invalid':
-			return 'has-error';
-		case 'Valid':
-			return 'has-success';
-		default:
-			return '';
-	}
-};
+var author$project$Main$dropWhile = F2(
+	function (predicate, list) {
+		dropWhile:
+		while (true) {
+			if (!list.b) {
+				return _List_Nil;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (predicate(x)) {
+					var $temp$predicate = predicate,
+						$temp$list = xs;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue dropWhile;
+				} else {
+					return list;
+				}
+			}
+		}
+	});
+var author$project$Main$takeWhile = F2(
+	function (predicate, list) {
+		if (!list.b) {
+			return _List_Nil;
+		} else {
+			var x = list.a;
+			var xs = list.b;
+			return predicate(x) ? A2(
+				elm$core$List$cons,
+				x,
+				A2(author$project$Main$takeWhile, predicate, xs)) : _List_Nil;
+		}
+	});
+var author$project$Main$listspan = F2(
+	function (p, xs) {
+		return _Utils_Tuple2(
+			A2(author$project$Main$takeWhile, p, xs),
+			A2(author$project$Main$dropWhile, p, xs));
+	});
+var author$project$Main$groupBy = F2(
+	function (eq, xs) {
+		if (!xs.b) {
+			return _List_Nil;
+		} else {
+			var x = xs.a;
+			var xs2 = xs.b;
+			var _n1 = A2(
+				author$project$Main$listspan,
+				eq(x),
+				xs2);
+			var ys = _n1.a;
+			var zs = _n1.b;
+			return A2(
+				elm$core$List$cons,
+				A2(elm$core$List$cons, x, ys),
+				A2(author$project$Main$groupBy, eq, zs));
+		}
+	});
 var author$project$Main$SaveSurvey = function (a) {
 	return {$: 'SaveSurvey', a: a};
 };
@@ -9802,7 +9925,8 @@ var author$project$Main$viewCanvas = F2(
 							_List_fromArray(
 								[
 									elm$html$Html$Events$onClick(
-									author$project$Main$SaveSurvey(survey))
+									author$project$Main$SaveSurvey(survey)),
+									elm$html$Html$Attributes$class('mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored')
 								]),
 							_List_fromArray(
 								[
@@ -9811,12 +9935,36 @@ var author$project$Main$viewCanvas = F2(
 						]))
 				]));
 	});
+var author$project$Main$viewCanvases = function (model) {
+	var addressesByStreet = A2(
+		author$project$Main$groupBy,
+		F2(
+			function (a, a2) {
+				return _Utils_eq(a.street, a2.street);
+			}),
+		model.addresses);
+	return A2(
+		elm$core$List$map,
+		author$project$Main$viewCanvas(model),
+		model.addresses);
+};
 var elm$html$Html$label = _VirtualDom_node('label');
+var elm$html$Html$li = _VirtualDom_node('li');
 var elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
 var elm$html$Html$map = elm$virtual_dom$VirtualDom$map;
-var elm$html$Html$th = _VirtualDom_node('th');
+var elm$html$Html$ol = _VirtualDom_node('ol');
 var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('htmlFor');
+var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var author$project$Main$view = function (model) {
+	var loadingClass = function () {
+		var _n1 = model.status;
+		if (_n1 === 'Loading..') {
+			return '';
+		} else {
+			return ' hidden';
+		}
+	}();
 	var hiddenClass = function () {
 		var _n0 = model.addresses;
 		if (!_n0.b) {
@@ -9829,7 +9977,7 @@ var author$project$Main$view = function (model) {
 		elm$html$Html$div,
 		_List_fromArray(
 			[
-				elm$html$Html$Attributes$class('container-fluid')
+				elm$html$Html$Attributes$class('mdl-grid')
 			]),
 		_List_fromArray(
 			[
@@ -9837,7 +9985,7 @@ var author$project$Main$view = function (model) {
 				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$class('row col-xs-6')
+						elm$html$Html$Attributes$class('mdl-card mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone mdl-shadow--2dp date-picker-cell')
 					]),
 				_List_fromArray(
 					[
@@ -9845,65 +9993,124 @@ var author$project$Main$view = function (model) {
 						elm$html$Html$div,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class(
-								'form-group ' + author$project$Main$validationClass(model))
+								elm$html$Html$Attributes$class('mdl-card__supporting-text')
 							]),
 						_List_fromArray(
 							[
 								A2(
-								elm$html$Html$label,
+								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('control-label')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text('Select the date of the doorknock')
+										A2(
+										elm$html$Html$map,
+										author$project$Main$ToDatePicker,
+										A3(CurrySoftware$elm_datepicker$DatePicker$view, model.date, author$project$Main$datepickerSettings, model.datePicker)),
+										A2(
+										elm$html$Html$label,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('mdl-textfield__label')
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Select the date of the doorknock')
+											]))
 									])),
 								A2(
-								elm$html$Html$map,
-								author$project$Main$ToDatePicker,
-								A3(CurrySoftware$elm_datepicker$DatePicker$view, model.date, CurrySoftware$elm_datepicker$DatePicker$defaultSettings, model.datePicker))
-							])),
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class(
-								'form-group ' + author$project$Main$validationClass(model))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$label,
+								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('control-label'),
-										elm$html$Html$Attributes$for('block-id')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
 									]),
 								_List_fromArray(
 									[
-										elm$html$Html$text(
-										author$project$Main$statusMessage(model))
+										A2(
+										elm$html$Html$input,
+										_List_fromArray(
+											[
+												elm$html$Html$Events$onInput(author$project$Main$UpdateBlockID),
+												elm$html$Html$Attributes$value(model.blockId),
+												elm$html$Html$Attributes$id('block-id'),
+												elm$html$Html$Attributes$class('mdl-textfield__input'),
+												elm$html$Html$Attributes$type_('text')
+											]),
+										_List_Nil),
+										A2(
+										elm$html$Html$label,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class('mdl-textfield__label'),
+												elm$html$Html$Attributes$for('block-id')
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text(
+												author$project$Main$statusMessage(model))
+											]))
 									])),
 								A2(
-								elm$html$Html$input,
+								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Events$onInput(author$project$Main$UpdateBlockID),
-										elm$html$Html$Attributes$value(model.blockId),
-										elm$html$Html$Attributes$id('block-id'),
-										elm$html$Html$Attributes$class('form-control'),
-										elm$html$Html$Attributes$type_('text')
+										elm$html$Html$Attributes$class('mdl-progress mdl-js-progress mdl-progress__indeterminate' + loadingClass),
+										A2(elm$html$Html$Attributes$style, 'width', '100%')
 									]),
-								_List_Nil)
+								_List_Nil),
+								A2(elm$html$Html$br, _List_Nil, _List_Nil),
+								A2(elm$html$Html$br, _List_Nil, _List_Nil),
+								elm$html$Html$text('Quick hints:'),
+								A2(
+								elm$html$Html$ol,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text('Use the \'Tab\' key to move between fields.')
+											])),
+										A2(
+										elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text('On dropdowns, type the first first letter of an option to jump to it e.g. type \'m\' to jump to \"meaningful conversation\".')
+											])),
+										A2(
+										elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text('On dropdowns, you can also use the arrow keys to move between options.')
+											])),
+										A2(
+										elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text('Once you have selected an option press \'Enter\' to select it.')
+											])),
+										A2(
+										elm$html$Html$li,
+										_List_Nil,
+										_List_fromArray(
+											[
+												elm$html$Html$text('Press Enter while on the Save button to trigger it.')
+											]))
+									]))
 							]))
 					])),
 				A2(
 				elm$html$Html$div,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$class('row col-xs-12')
+						elm$html$Html$Attributes$class('mdl-cell')
 					]),
 				_List_fromArray(
 					[
@@ -9911,7 +10118,7 @@ var author$project$Main$view = function (model) {
 						elm$html$Html$table,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('table table-bordered table-striped highlight-focus' + hiddenClass)
+								elm$html$Html$Attributes$class('mdl-data-table mdl-js-data-table mdl-shadow--2dp' + hiddenClass)
 							]),
 						_List_fromArray(
 							[
@@ -9919,84 +10126,11 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$thead,
 								_List_Nil,
 								_List_fromArray(
-									[
-										A2(
-										elm$html$Html$tr,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Address')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Outcome')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Dutton Support')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Return')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Voter ID')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Dutton last')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Notes')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Last updated')
-													])),
-												A2(
-												elm$html$Html$th,
-												_List_Nil,
-												_List_fromArray(
-													[
-														elm$html$Html$text('Actions')
-													]))
-											]))
-									])),
+									[author$project$Main$canvasHeader])),
 								A2(
 								elm$html$Html$tbody,
 								_List_Nil,
-								A2(
-									elm$core$List$map,
-									author$project$Main$viewCanvas(model),
-									model.addresses))
+								author$project$Main$viewCanvases(model))
 							]))
 					]))
 			]));

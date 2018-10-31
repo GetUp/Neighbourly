@@ -1,0 +1,12 @@
+ .mdl-data-table tbody tr:hover{
+  background-color: #fff;
+}
+
+.mdl-data-table tbody tr:focus-within {
+  background-color: #eee !important;
+}
+
+.date-picker-cell, .date-picker-cell .mdl-card__supporting-text{
+  overflow: visible !important;
+}
+

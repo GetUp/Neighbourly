@@ -9,7 +9,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map2, map5, map6, string)
+import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map6, string)
 import Json.Encode
 import Regex
 import Task
@@ -18,6 +18,53 @@ import Url.Builder as Url
 
 main =
     Browser.element { init = init, subscriptions = subscriptions, update = update, view = view }
+
+
+groupBy : (a -> a -> Bool) -> List a -> List (List a)
+groupBy eq xs =
+    case xs of
+        [] ->
+            []
+
+        x :: xs2 ->
+            let
+                ( ys, zs ) =
+                    listspan (eq x) xs2
+            in
+            (x :: ys) :: groupBy eq zs
+
+
+listspan : (a -> Bool) -> List a -> ( List a, List a )
+listspan p xs =
+    ( takeWhile p xs, dropWhile p xs )
+
+
+takeWhile : (a -> Bool) -> List a -> List a
+takeWhile predicate list =
+    case list of
+        [] ->
+            []
+
+        x :: xs ->
+            if predicate x then
+                x :: takeWhile predicate xs
+
+            else
+                []
+
+
+dropWhile : (a -> Bool) -> List a -> List a
+dropWhile predicate list =
+    case list of
+        [] ->
+            []
+
+        x :: xs ->
+            if predicate x then
+                dropWhile predicate xs
+
+            else
+                list
 
 
 
@@ -80,7 +127,7 @@ init _ =
       , date = Nothing
       , datePicker = datePicker
       }
-    , Cmd.batch [ Task.perform (Just >> SetDate) Date.today, Cmd.map ToDatePicker datePickerFx ]
+    , Cmd.batch [ Cmd.map ToDatePicker datePickerFx ]
     )
 
 
@@ -93,7 +140,7 @@ type alias SurveyResponse =
 
 
 type alias Address =
-    { gnaf_pid : String, address : String }
+    { gnaf_pid : String, address : String, street : String }
 
 
 type alias SurveyResponses =
@@ -139,7 +186,7 @@ addressAndCanvasDecoder =
 
 addressDecoder : Decoder (List Address)
 addressDecoder =
-    list (map2 Address (field "gnaf_pid" string) (field "address" string))
+    list (map3 Address (field "gnaf_pid" string) (field "address" string) (field "street" string))
 
 
 surveysDecoder : Decoder Canvas
@@ -229,11 +276,11 @@ httpErrorString error =
                 ++ ")"
 
 
-settings : DatePicker.Settings
-settings =
+datepickerSettings : DatePicker.Settings
+datepickerSettings =
     { defaultSettings
-        | inputClassList = [ ( "form-control", True ) ]
-        , inputName = Just "date"
+        | inputClassList = [ ( "mdl-textfield__input", True ) ]
+        , placeholder = ""
         , inputId = Just "date-field"
     }
 
@@ -273,7 +320,7 @@ update msg model =
 
                 Just existingDate ->
                     if String.length newBlockId == 11 then
-                        ( { model | blockId = newBlockId, valid = Valid, status = "loading..", addresses = [] }, getAddressesForBlockId newBlockId existingDate )
+                        ( { model | blockId = newBlockId, valid = Valid, status = "Loading..", addresses = [] }, getAddressesForBlockId newBlockId existingDate )
 
                     else
                         ( { model | blockId = newBlockId, valid = Invalid, status = validationMessage newBlockId, addresses = [] }, Cmd.none )
@@ -326,7 +373,7 @@ update msg model =
         ToDatePicker subMsg ->
             let
                 ( newDatePicker, event ) =
-                    DatePicker.update DatePicker.defaultSettings subMsg model.datePicker
+                    DatePicker.update datepickerSettings subMsg model.datePicker
             in
             ( { model
                 | date =
@@ -380,6 +427,30 @@ validationMessage blockId =
     "Enter " ++ toString (11 - String.length blockId) ++ " more digits"
 
 
+viewCanvases : Model -> List (Html Msg)
+viewCanvases model =
+    let
+        addressesByStreet =
+            groupBy (\a a2 -> a.street == a2.street) model.addresses
+    in
+    List.map (viewCanvas model) model.addresses
+
+
+canvasHeader : Html Msg
+canvasHeader =
+    tr []
+        [ th [] [ text "Address" ]
+        , th [] [ text "Outcome" ]
+        , th [] [ text "Dutton Support" ]
+        , th [] [ text "Return" ]
+        , th [] [ text "Voter ID" ]
+        , th [] [ text "Dutton last" ]
+        , th [] [ text "Notes" ]
+        , th [] [ text "Last saved" ]
+        , th [] [ text "Actions" ]
+        ]
+
+
 viewCanvas : Model -> Address -> Html Msg
 viewCanvas model address =
     let
@@ -394,6 +465,7 @@ viewCanvas model address =
     in
     tr []
         [ td []
+            -- [ text (String.replace address.street "" address.address), br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
             [ text address.address, br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
         , td []
             [ select [ onInput (UpdateOutcome survey) ] (answerOptions "outcome" survey.responses.outcome) ]
@@ -410,7 +482,7 @@ viewCanvas model address =
         , td []
             [ span [ class "small" ] [ text (String.left 10 survey.updated_at) ] ]
         , td []
-            [ button [ onClick (SaveSurvey survey) ] [ text "Save" ] ]
+            [ button [ onClick (SaveSurvey survey), class "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" ] [ text "Save" ] ]
         ]
 
 
@@ -447,36 +519,45 @@ view model =
 
                 _ ->
                     ""
+
+        loadingClass =
+            case model.status of
+                "Loading.." ->
+                    ""
+
+                _ ->
+                    " hidden"
     in
-    div [ class "container-fluid" ]
-        [ div [ class "row col-xs-6" ]
-            [ div [ class ("form-group " ++ validationClass model) ]
-                [ label [ class "control-label" ] [ text "Select the date of the doorknock" ]
-                , DatePicker.view model.date DatePicker.defaultSettings model.datePicker
-                    |> Html.map ToDatePicker
-                ]
-            , div [ class ("form-group " ++ validationClass model) ]
-                [ label [ class "control-label", for "block-id" ] [ text (statusMessage model) ]
-                , input [ onInput UpdateBlockID, value model.blockId, id "block-id", class "form-control", type_ "text" ] []
+    div [ class "mdl-grid" ]
+        [ div [ class "mdl-card mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone mdl-shadow--2dp date-picker-cell" ]
+            [ div [ class "mdl-card__supporting-text" ]
+                [ div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
+                    [ DatePicker.view model.date datepickerSettings model.datePicker
+                        |> Html.map ToDatePicker
+                    , label [ class "mdl-textfield__label" ] [ text "Select the date of the doorknock" ]
+                    ]
+                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
+                    [ input [ onInput UpdateBlockID, value model.blockId, id "block-id", class "mdl-textfield__input", type_ "text" ] []
+                    , label [ class "mdl-textfield__label", for "block-id" ] [ text (statusMessage model) ]
+                    ]
+                , div [ class ("mdl-progress mdl-js-progress mdl-progress__indeterminate" ++ loadingClass), style "width" "100%" ] []
+                , br [] []
+                , br [] []
+                , text "Quick hints:"
+                , ol []
+                    [ li [] [ text "Use the 'Tab' key to move between fields." ]
+                    , li [] [ text "On dropdowns, type the first first letter of an option to jump to it e.g. type 'm' to jump to \"meaningful conversation\"." ]
+                    , li [] [ text "On dropdowns, you can also use the arrow keys to move between options." ]
+                    , li [] [ text "Once you have selected an option press 'Enter' to select it." ]
+                    , li [] [ text "Press Enter while on the Save button to trigger it." ]
+                    ]
                 ]
             ]
-        , div [ class "row col-xs-12" ]
+        , div [ class "mdl-cell" ]
             [ table
-                [ class ("table table-bordered table-striped highlight-focus" ++ hiddenClass) ]
-                [ thead []
-                    [ tr []
-                        [ th [] [ text "Address" ]
-                        , th [] [ text "Outcome" ]
-                        , th [] [ text "Dutton Support" ]
-                        , th [] [ text "Return" ]
-                        , th [] [ text "Voter ID" ]
-                        , th [] [ text "Dutton last" ]
-                        , th [] [ text "Notes" ]
-                        , th [] [ text "Last updated" ]
-                        , th [] [ text "Actions" ]
-                        ]
-                    ]
-                , tbody [] (List.map (viewCanvas model) model.addresses)
+                [ class ("mdl-data-table mdl-js-data-table mdl-shadow--2dp" ++ hiddenClass) ]
+                [ thead [] [ canvasHeader ]
+                , tbody [] (viewCanvases model)
                 ]
             ]
         ]
