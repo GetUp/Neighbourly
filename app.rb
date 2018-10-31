@@ -240,3 +240,15 @@ post '/unclaim_meshblock/:id' do
     status 200
   end
 end
+
+get '/data_entry' do
+  authorised do
+    haml :data_entry, locals: {page: 'data_entry'}
+  end
+end
+
+post '/survey' do
+  authorised do
+    haml :data_entry, locals: {page: 'data_entry'}
+  end
+end

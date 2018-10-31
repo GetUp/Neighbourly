@@ -38,8 +38,8 @@
   color: #555;
 }
 
-select:focus,
-#address_search {
+#address_search:focus,
+ {
   font-size: 36px;
 }
 
@@ -282,4 +282,14 @@ select:focus,
     margin-right: 0.7em;
     margin-left: 0.7em;
     opacity: 1;
+}
+
+table.highlight-focus tr:focus-within {
+  font-weight: bold;
+}
+table.highlight-focus tr:focus-within td{
+  background-color: #fcf8e3;
+}
+table.highlight-focus tr:focus-within td:focus-within {
+  background-color: #d9edf7;
 }

@@ -1,7 +1,7 @@
 #Ignores all swap files.
 **/*.swp
 **/*.swo
-
+elm-stuff
 .idea/
 logfile
 run.sh
