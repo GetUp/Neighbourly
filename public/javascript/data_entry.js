@@ -9546,103 +9546,6 @@ var CurrySoftware$elm_datepicker$DatePicker$view = F3(
 var author$project$Main$UpdateBlockID = function (a) {
 	return {$: 'UpdateBlockID', a: a};
 };
-var elm$html$Html$th = _VirtualDom_node('th');
-var author$project$Main$canvasHeader = A2(
-	elm$html$Html$tr,
-	_List_Nil,
-	_List_fromArray(
-		[
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Address')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Outcome')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Dutton Support')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Return')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Voter ID')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Dutton last')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Notes')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Last saved')
-				])),
-			A2(
-			elm$html$Html$th,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-				]),
-			_List_fromArray(
-				[
-					elm$html$Html$text('Actions')
-				]))
-		]));
 var author$project$Main$statusMessage = function (model) {
 	var _n0 = model.status;
 	if (_n0 === '') {
@@ -9652,65 +9555,109 @@ var author$project$Main$statusMessage = function (model) {
 		return status;
 	}
 };
-var author$project$Main$dropWhile = F2(
-	function (predicate, list) {
-		dropWhile:
-		while (true) {
-			if (!list.b) {
-				return _List_Nil;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (predicate(x)) {
-					var $temp$predicate = predicate,
-						$temp$list = xs;
-					predicate = $temp$predicate;
-					list = $temp$list;
-					continue dropWhile;
-				} else {
-					return list;
-				}
-			}
-		}
+var author$project$Main$RowResult = F2(
+	function (rows, lastStreet) {
+		return {lastStreet: lastStreet, rows: rows};
 	});
-var author$project$Main$takeWhile = F2(
-	function (predicate, list) {
-		if (!list.b) {
-			return _List_Nil;
-		} else {
-			var x = list.a;
-			var xs = list.b;
-			return predicate(x) ? A2(
-				elm$core$List$cons,
-				x,
-				A2(author$project$Main$takeWhile, predicate, xs)) : _List_Nil;
-		}
-	});
-var author$project$Main$listspan = F2(
-	function (p, xs) {
-		return _Utils_Tuple2(
-			A2(author$project$Main$takeWhile, p, xs),
-			A2(author$project$Main$dropWhile, p, xs));
-	});
-var author$project$Main$groupBy = F2(
-	function (eq, xs) {
-		if (!xs.b) {
-			return _List_Nil;
-		} else {
-			var x = xs.a;
-			var xs2 = xs.b;
-			var _n1 = A2(
-				author$project$Main$listspan,
-				eq(x),
-				xs2);
-			var ys = _n1.a;
-			var zs = _n1.b;
-			return A2(
-				elm$core$List$cons,
-				A2(elm$core$List$cons, x, ys),
-				A2(author$project$Main$groupBy, eq, zs));
-		}
-	});
+var elm$html$Html$th = _VirtualDom_node('th');
+var author$project$Main$canvasHeader = function (street) {
+	return A2(
+		elm$html$Html$tr,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(street)
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Outcome')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Dutton Support')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Return')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Voter ID')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Dutton last')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Notes')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Last saved')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text('Actions')
+					]))
+			]));
+};
 var author$project$Main$SaveSurvey = function (a) {
 	return {$: 'SaveSurvey', a: a};
 };
@@ -9798,6 +9745,13 @@ var author$project$Main$emptySurvey = F3(
 			updated_at: ''
 		};
 	});
+var elm$core$String$replace = F3(
+	function (before, after, string) {
+		return A2(
+			elm$core$String$join,
+			after,
+			A2(elm$core$String$split, before, string));
+	});
 var elm$html$Html$br = _VirtualDom_node('br');
 var elm$html$Html$select = _VirtualDom_node('select');
 var elm$html$Html$textarea = _VirtualDom_node('textarea');
@@ -9823,7 +9777,8 @@ var author$project$Main$viewCanvas = F2(
 						]),
 					_List_fromArray(
 						[
-							elm$html$Html$text(address.address),
+							elm$html$Html$text(
+							A3(elm$core$String$replace, address.street, '', address.address)),
 							A2(elm$html$Html$br, _List_Nil, _List_Nil),
 							A2(
 							elm$html$Html$span,
@@ -9990,17 +9945,39 @@ var author$project$Main$viewCanvas = F2(
 				]));
 	});
 var author$project$Main$viewCanvases = function (model) {
-	var addressesByStreet = A2(
-		author$project$Main$groupBy,
-		F2(
-			function (a, a2) {
-				return _Utils_eq(a.street, a2.street);
-			}),
-		model.addresses);
-	return A2(
-		elm$core$List$map,
-		author$project$Main$viewCanvas(model),
-		model.addresses);
+	var rowWithOptionalHeader = F2(
+		function (address, result) {
+			return (!_Utils_eq(result.lastStreet, address.street)) ? A2(
+				author$project$Main$RowResult,
+				_Utils_ap(
+					result.rows,
+					_Utils_ap(
+						_List_fromArray(
+							[
+								author$project$Main$canvasHeader(address.street)
+							]),
+						_List_fromArray(
+							[
+								A2(author$project$Main$viewCanvas, model, address)
+							]))),
+				address.street) : A2(
+				author$project$Main$RowResult,
+				_Utils_ap(
+					result.rows,
+					_List_fromArray(
+						[
+							A2(author$project$Main$viewCanvas, model, address)
+						])),
+				address.street);
+		});
+	return function ($) {
+		return $.rows;
+	}(
+		A3(
+			elm$core$List$foldl,
+			rowWithOptionalHeader,
+			A2(author$project$Main$RowResult, _List_Nil, ''),
+			model.addresses));
 };
 var elm$html$Html$label = _VirtualDom_node('label');
 var elm$html$Html$li = _VirtualDom_node('li');
@@ -10176,11 +10153,6 @@ var author$project$Main$view = function (model) {
 							]),
 						_List_fromArray(
 							[
-								A2(
-								elm$html$Html$thead,
-								_List_Nil,
-								_List_fromArray(
-									[author$project$Main$canvasHeader])),
 								A2(
 								elm$html$Html$tbody,
 								_List_Nil,

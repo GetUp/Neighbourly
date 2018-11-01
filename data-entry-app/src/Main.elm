@@ -427,19 +427,33 @@ validationMessage blockId =
     "Enter " ++ toString (11 - String.length blockId) ++ " more digits"
 
 
+type alias RowResult =
+    { rows : List (Html Msg), lastStreet : String }
+
+
 viewCanvases : Model -> List (Html Msg)
 viewCanvases model =
     let
-        addressesByStreet =
-            groupBy (\a a2 -> a.street == a2.street) model.addresses
+        rowWithOptionalHeader : Address -> RowResult -> RowResult
+        rowWithOptionalHeader address result =
+            if result.lastStreet /= address.street then
+                RowResult (result.rows ++ [ canvasHeader address.street ] ++ [ viewCanvas model address ]) address.street
+
+            else
+                RowResult (result.rows ++ [ viewCanvas model address ]) address.street
     in
-    List.map (viewCanvas model) model.addresses
+    .rows
+        (List.foldl
+            rowWithOptionalHeader
+            (RowResult [] "")
+            model.addresses
+        )
 
 
-canvasHeader : Html Msg
-canvasHeader =
+canvasHeader : String -> Html Msg
+canvasHeader street =
     tr []
-        [ th [ class "mdl-data-table__cell--non-numeric" ] [ text "Address" ]
+        [ th [ class "mdl-data-table__cell--non-numeric" ] [ text street ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Outcome" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Dutton Support" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Return" ]
@@ -465,8 +479,7 @@ viewCanvas model address =
     in
     tr []
         [ td [ class "mdl-data-table__cell--non-numeric" ]
-            -- [ text (String.replace address.street "" address.address), br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
-            [ text address.address, br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
+            [ text (String.replace address.street "" address.address), br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ onInput (UpdateOutcome survey) ] (answerOptions "outcome" survey.responses.outcome) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
@@ -556,8 +569,6 @@ view model =
         , div [ class "mdl-cell" ]
             [ table
                 [ class ("mdl-data-table mdl-js-data-table mdl-shadow--2dp" ++ hiddenClass) ]
-                [ thead [] [ canvasHeader ]
-                , tbody [] (viewCanvases model)
-                ]
+                [ tbody [] (viewCanvases model) ]
             ]
         ]
