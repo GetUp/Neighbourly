@@ -1,4 +1,4 @@
-module Main exposing (Address, BlockID, Model, Msg(..), addressDecoder, getAddressesForBlockId, httpErrorString, init, main, subscriptions, toUrl, update, view, viewCanvas)
+module Main exposing (Model, ValidationStatus(..), view)
 
 import Browser
 import Date exposing (Date, day, month, today, weekday, year)
@@ -11,7 +11,6 @@ import Html.Events exposing (onClick, onInput)
 import Http
 import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map6, string)
 import Json.Encode
-import Regex
 import Task
 import Url.Builder as Url
 
@@ -20,61 +19,8 @@ main =
     Browser.element { init = init, subscriptions = subscriptions, update = update, view = view }
 
 
-groupBy : (a -> a -> Bool) -> List a -> List (List a)
-groupBy eq xs =
-    case xs of
-        [] ->
-            []
 
-        x :: xs2 ->
-            let
-                ( ys, zs ) =
-                    listspan (eq x) xs2
-            in
-            (x :: ys) :: groupBy eq zs
-
-
-listspan : (a -> Bool) -> List a -> ( List a, List a )
-listspan p xs =
-    ( takeWhile p xs, dropWhile p xs )
-
-
-takeWhile : (a -> Bool) -> List a -> List a
-takeWhile predicate list =
-    case list of
-        [] ->
-            []
-
-        x :: xs ->
-            if predicate x then
-                x :: takeWhile predicate xs
-
-            else
-                []
-
-
-dropWhile : (a -> Bool) -> List a -> List a
-dropWhile predicate list =
-    case list of
-        [] ->
-            []
-
-        x :: xs ->
-            if predicate x then
-                dropWhile predicate xs
-
-            else
-                list
-
-
-
--- Models
-
-
-type ValidationStatus
-    = Valid
-    | Invalid
-    | Unknown
+-- Models --
 
 
 type alias Model =
@@ -88,6 +34,12 @@ type alias Model =
     }
 
 
+type ValidationStatus
+    = Valid
+    | Invalid
+    | Unknown
+
+
 type alias Canvas =
     Dict String Survey
 
@@ -96,39 +48,6 @@ type alias AddressAndCanvasData =
     { addresses : List Address
     , canvas : Canvas
     }
-
-
-type Msg
-    = UpdateBlockID String
-    | LoadAddresses (Result Http.Error AddressAndCanvasData)
-    | ToDatePicker DatePicker.Msg
-    | SetDate (Maybe Date)
-    | UpdateOutcome Survey String
-    | UpdateDuttonSupport Survey String
-    | UpdateWorthReturning Survey String
-    | UpdateVoterID Survey String
-    | UpdateDuttonLast Survey String
-    | UpdateNotes Survey String
-    | SaveSurvey Survey
-    | LoadSurvey (Result Http.Error Survey)
-
-
-init : () -> ( Model, Cmd Msg )
-init _ =
-    let
-        ( datePicker, datePickerFx ) =
-            DatePicker.init
-    in
-    ( { blockId = ""
-      , status = ""
-      , valid = Unknown
-      , addresses = []
-      , canvas = Dict.empty
-      , date = Nothing
-      , datePicker = datePicker
-      }
-    , Cmd.batch [ Cmd.map ToDatePicker datePickerFx ]
-    )
 
 
 type alias BlockID =
@@ -179,6 +98,10 @@ emptySurvey gnaf_pid block_id survey_on =
     }
 
 
+
+-- JSON Decoders --
+
+
 addressAndCanvasDecoder : Decoder AddressAndCanvasData
 addressAndCanvasDecoder =
     Json.Decode.map2 AddressAndCanvasData (field "addresses" addressDecoder) (field "surveys" surveysDecoder)
@@ -223,6 +146,10 @@ getAddressesForBlockId id survey_on =
     Http.send LoadAddresses (Http.get (toUrl id survey_on) addressAndCanvasDecoder)
 
 
+
+-- JSON Encoder --
+
+
 surveyToJson : Survey -> Json.Encode.Value
 surveyToJson survey =
     case survey.survey_on of
@@ -245,6 +172,10 @@ surveyToJson survey =
                         ]
                   )
                 ]
+
+
+
+-- HTTP --
 
 
 upsertSurvey : Survey -> Cmd Msg
@@ -276,15 +207,6 @@ httpErrorString error =
                 ++ ")"
 
 
-datepickerSettings : DatePicker.Settings
-datepickerSettings =
-    { defaultSettings
-        | inputClassList = [ ( "mdl-textfield__input", True ) ]
-        , placeholder = ""
-        , inputId = Just "date-field"
-    }
-
-
 apiBase : String
 apiBase =
     "https://4oqtu02x7f.execute-api.ap-southeast-2.amazonaws.com"
@@ -296,7 +218,22 @@ toUrl id survey_on =
 
 
 
--- Commands
+-- Update --
+
+
+type Msg
+    = UpdateBlockID String
+    | LoadAddresses (Result Http.Error AddressAndCanvasData)
+    | ToDatePicker DatePicker.Msg
+    | SetDate (Maybe Date)
+    | UpdateOutcome Survey String
+    | UpdateDuttonSupport Survey String
+    | UpdateWorthReturning Survey String
+    | UpdateVoterID Survey String
+    | UpdateDuttonLast Survey String
+    | UpdateNotes Survey String
+    | SaveSurvey Survey
+    | LoadSurvey (Result Http.Error Survey)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -413,6 +350,15 @@ questions question =
     Maybe.withDefault [] (Dict.get question options)
 
 
+datepickerSettings : DatePicker.Settings
+datepickerSettings =
+    { defaultSettings
+        | inputClassList = [ ( "mdl-textfield__input", True ) ]
+        , placeholder = ""
+        , inputId = Just "date-field"
+    }
+
+
 answerOptions : String -> String -> List (Html Msg)
 answerOptions question selectedValue =
     let
@@ -509,37 +455,23 @@ statusMessage model =
             status
 
 
-validationClass : Model -> String
-validationClass model =
-    case model.valid of
-        Invalid ->
-            "has-error"
+ifThen : Bool -> String -> String
+ifThen condition stringToAppend =
+    if condition then
+        " " ++ stringToAppend
 
-        Valid ->
-            "has-success"
-
-        _ ->
-            ""
+    else
+        ""
 
 
 view : Model -> Html Msg
 view model =
     let
         hiddenClass =
-            case model.addresses of
-                [] ->
-                    " hidden"
-
-                _ ->
-                    ""
+            ifThen (model.addresses == []) "hidden"
 
         loadingClass =
-            case model.status of
-                "Loading.." ->
-                    ""
-
-                _ ->
-                    " hidden"
+            ifThen (model.status /= "Loading..") "hidden"
     in
     div [ class "mdl-grid" ]
         [ div [ class "mdl-card mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone mdl-shadow--2dp date-picker-cell" ]
@@ -572,3 +504,25 @@ view model =
                 [ tbody [] (viewCanvases model) ]
             ]
         ]
+
+
+
+--- Init --
+
+
+init : () -> ( Model, Cmd Msg )
+init _ =
+    let
+        ( datePicker, datePickerFx ) =
+            DatePicker.init
+    in
+    ( { blockId = ""
+      , status = ""
+      , valid = Unknown
+      , addresses = []
+      , canvas = Dict.empty
+      , date = Nothing
+      , datePicker = datePicker
+      }
+    , Cmd.batch [ Cmd.map ToDatePicker datePickerFx ]
+    )

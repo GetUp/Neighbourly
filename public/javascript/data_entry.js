@@ -9546,6 +9546,10 @@ var CurrySoftware$elm_datepicker$DatePicker$view = F3(
 var author$project$Main$UpdateBlockID = function (a) {
 	return {$: 'UpdateBlockID', a: a};
 };
+var author$project$Main$ifThen = F2(
+	function (condition, stringToAppend) {
+		return condition ? (' ' + stringToAppend) : '';
+	});
 var author$project$Main$statusMessage = function (model) {
 	var _n0 = model.status;
 	if (_n0 === '') {
@@ -9988,22 +9992,11 @@ var elm$html$Html$Attributes$for = elm$html$Html$Attributes$stringProperty('html
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
 var author$project$Main$view = function (model) {
-	var loadingClass = function () {
-		var _n1 = model.status;
-		if (_n1 === 'Loading..') {
-			return '';
-		} else {
-			return ' hidden';
-		}
-	}();
-	var hiddenClass = function () {
-		var _n0 = model.addresses;
-		if (!_n0.b) {
-			return ' hidden';
-		} else {
-			return '';
-		}
-	}();
+	var loadingClass = A2(author$project$Main$ifThen, model.status !== 'Loading..', 'hidden');
+	var hiddenClass = A2(
+		author$project$Main$ifThen,
+		_Utils_eq(model.addresses, _List_Nil),
+		'hidden');
 	return A2(
 		elm$html$Html$div,
 		_List_fromArray(
