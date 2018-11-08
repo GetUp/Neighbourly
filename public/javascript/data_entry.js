@@ -9559,10 +9559,6 @@ var author$project$Main$statusMessage = function (model) {
 		return status;
 	}
 };
-var author$project$Main$RowResult = F2(
-	function (rows, lastStreet) {
-		return {lastStreet: lastStreet, rows: rows};
-	});
 var elm$html$Html$th = _VirtualDom_node('th');
 var author$project$Main$canvasHeader = function (street) {
 	return A2(
@@ -9951,10 +9947,11 @@ var author$project$Main$viewCanvas = F2(
 var author$project$Main$viewCanvases = function (model) {
 	var rowWithOptionalHeader = F2(
 		function (address, result) {
-			return (!_Utils_eq(result.lastStreet, address.street)) ? A2(
-				author$project$Main$RowResult,
+			var previousRows = result.a;
+			var lastStreet = result.b;
+			return (!_Utils_eq(lastStreet, address.street)) ? _Utils_Tuple2(
 				_Utils_ap(
-					result.rows,
+					previousRows,
 					_Utils_ap(
 						_List_fromArray(
 							[
@@ -9964,24 +9961,20 @@ var author$project$Main$viewCanvases = function (model) {
 							[
 								A2(author$project$Main$viewCanvas, model, address)
 							]))),
-				address.street) : A2(
-				author$project$Main$RowResult,
+				address.street) : _Utils_Tuple2(
 				_Utils_ap(
-					result.rows,
+					previousRows,
 					_List_fromArray(
 						[
 							A2(author$project$Main$viewCanvas, model, address)
 						])),
 				address.street);
 		});
-	return function ($) {
-		return $.rows;
-	}(
-		A3(
-			elm$core$List$foldl,
-			rowWithOptionalHeader,
-			A2(author$project$Main$RowResult, _List_Nil, ''),
-			model.addresses));
+	return A3(
+		elm$core$List$foldl,
+		rowWithOptionalHeader,
+		_Utils_Tuple2(_List_Nil, ''),
+		model.addresses).a;
 };
 var elm$html$Html$label = _VirtualDom_node('label');
 var elm$html$Html$li = _VirtualDom_node('li');

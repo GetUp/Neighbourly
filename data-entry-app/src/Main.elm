@@ -373,25 +373,28 @@ validationMessage blockId =
     "Enter " ++ toString (11 - String.length blockId) ++ " more digits"
 
 
-type alias RowResult =
-    { rows : List (Html Msg), lastStreet : String }
-
-
 viewCanvases : Model -> List (Html Msg)
 viewCanvases model =
     let
-        rowWithOptionalHeader : Address -> RowResult -> RowResult
+        rowWithOptionalHeader : Address -> ( List (Html Msg), String ) -> ( List (Html Msg), String )
         rowWithOptionalHeader address result =
-            if result.lastStreet /= address.street then
-                RowResult (result.rows ++ [ canvasHeader address.street ] ++ [ viewCanvas model address ]) address.street
+            let
+                previousRows =
+                    Tuple.first result
+
+                lastStreet =
+                    Tuple.second result
+            in
+            if lastStreet /= address.street then
+                ( previousRows ++ [ canvasHeader address.street ] ++ [ viewCanvas model address ], address.street )
 
             else
-                RowResult (result.rows ++ [ viewCanvas model address ]) address.street
+                ( previousRows ++ [ viewCanvas model address ], address.street )
     in
-    .rows
+    Tuple.first
         (List.foldl
             rowWithOptionalHeader
-            (RowResult [] "")
+            ( [], "" )
             model.addresses
         )
 
