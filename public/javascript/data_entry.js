@@ -7382,19 +7382,20 @@ var author$project$Main$Survey = F5(
 	function (gnaf_pid, block_id, survey_on, updated_at, responses) {
 		return {block_id: block_id, gnaf_pid: gnaf_pid, responses: responses, survey_on: survey_on, updated_at: updated_at};
 	});
-var author$project$Main$SurveyResponses = F6(
-	function (outcome, dutton_support, worth_returning, voter_id, dutton_last, notes) {
-		return {dutton_last: dutton_last, dutton_support: dutton_support, notes: notes, outcome: outcome, voter_id: voter_id, worth_returning: worth_returning};
+var author$project$Main$SurveyResponses = F7(
+	function (outcome, dutton_support, worth_returning, voter_id, dutton_last, key_issue, notes) {
+		return {dutton_last: dutton_last, dutton_support: dutton_support, key_issue: key_issue, notes: notes, outcome: outcome, voter_id: voter_id, worth_returning: worth_returning};
 	});
-var elm$json$Json$Decode$map6 = _Json_map6;
-var author$project$Main$responsesDecoder = A7(
-	elm$json$Json$Decode$map6,
+var elm$json$Json$Decode$map7 = _Json_map7;
+var author$project$Main$responsesDecoder = A8(
+	elm$json$Json$Decode$map7,
 	author$project$Main$SurveyResponses,
 	A2(elm$json$Json$Decode$field, 'outcome', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'dutton_support', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'worth_returning', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'voter_id', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'dutton_last', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'key_issue', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'notes', elm$json$Json$Decode$string));
 var elm$json$Json$Decode$fail = _Json_fail;
 var author$project$Main$stringToDate = function (date) {
@@ -8374,6 +8375,20 @@ var author$project$Main$update = F2(
 							return _Utils_update(
 								r,
 								{dutton_last: newValue});
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'UpdateKeyIssue':
+				var survey = msg.a;
+				var newValue = msg.b;
+				return _Utils_Tuple2(
+					A3(
+						updateModelWithSurveyResponse,
+						model,
+						survey,
+						function (r) {
+							return _Utils_update(
+								r,
+								{key_issue: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'UpdateNotes':
@@ -9634,6 +9649,16 @@ var author$project$Main$canvasHeader = function (street) {
 					]),
 				_List_fromArray(
 					[
+						elm$html$Html$text('Key Issue')
+					])),
+				A2(
+				elm$html$Html$th,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+					]),
+				_List_fromArray(
+					[
 						elm$html$Html$text('Notes')
 					])),
 				A2(
@@ -9668,6 +9693,10 @@ var author$project$Main$UpdateDuttonLast = F2(
 var author$project$Main$UpdateDuttonSupport = F2(
 	function (a, b) {
 		return {$: 'UpdateDuttonSupport', a: a, b: b};
+	});
+var author$project$Main$UpdateKeyIssue = F2(
+	function (a, b) {
+		return {$: 'UpdateKeyIssue', a: a, b: b};
 	});
 var author$project$Main$UpdateNotes = F2(
 	function (a, b) {
@@ -9708,7 +9737,11 @@ var author$project$Main$questions = function (question) {
 				_Utils_Tuple2(
 				'dutton_last',
 				_List_fromArray(
-					['', 'yes', 'no']))
+					['', 'yes', 'no'])),
+				_Utils_Tuple2(
+				'key_issue',
+				_List_fromArray(
+					['', 'issue 1', 'issue 2']))
 			]));
 	return A2(
 		elm$core$Maybe$withDefault,
@@ -9740,7 +9773,7 @@ var author$project$Main$emptySurvey = F3(
 		return {
 			block_id: block_id,
 			gnaf_pid: gnaf_pid,
-			responses: {dutton_last: '', dutton_support: '', notes: '', outcome: '', voter_id: '', worth_returning: ''},
+			responses: {dutton_last: '', dutton_support: '', key_issue: '', notes: '', outcome: '', voter_id: '', worth_returning: ''},
 			survey_on: survey_on,
 			updated_at: ''
 		};
@@ -9879,6 +9912,24 @@ var author$project$Main$viewCanvas = F2(
 									author$project$Main$UpdateDuttonLast(survey))
 								]),
 							A2(author$project$Main$answerOptions, 'dutton_last', survey.responses.dutton_last))
+						])),
+					A2(
+					elm$html$Html$td,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$select,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
+									elm$html$Html$Events$onInput(
+									author$project$Main$UpdateKeyIssue(survey))
+								]),
+							A2(author$project$Main$answerOptions, 'key_issue', survey.responses.key_issue))
 						])),
 					A2(
 					elm$html$Html$td,

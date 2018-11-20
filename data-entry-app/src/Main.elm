@@ -9,7 +9,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map6, string)
+import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map7, string)
 import Json.Encode
 import Task
 import Url.Builder as Url
@@ -68,6 +68,7 @@ type alias SurveyResponses =
     , worth_returning : SurveyResponse
     , voter_id : SurveyResponse
     , dutton_last : SurveyResponse
+    , key_issue : SurveyResponse
     , notes : SurveyResponse
     }
 
@@ -93,6 +94,7 @@ emptySurvey gnaf_pid block_id survey_on =
         , worth_returning = ""
         , voter_id = ""
         , dutton_last = ""
+        , key_issue = ""
         , notes = ""
         }
     }
@@ -119,7 +121,15 @@ surveysDecoder =
 
 responsesDecoder : Decoder SurveyResponses
 responsesDecoder =
-    map6 SurveyResponses (field "outcome" string) (field "dutton_support" string) (field "worth_returning" string) (field "voter_id" string) (field "dutton_last" string) (field "notes" string)
+    map7
+        SurveyResponses
+        (field "outcome" string)
+        (field "dutton_support" string)
+        (field "worth_returning" string)
+        (field "voter_id" string)
+        (field "dutton_last" string)
+        (field "key_issue" string)
+        (field "notes" string)
 
 
 stringToDate : String -> Decoder (Maybe Date)
@@ -231,6 +241,7 @@ type Msg
     | UpdateWorthReturning Survey String
     | UpdateVoterID Survey String
     | UpdateDuttonLast Survey String
+    | UpdateKeyIssue Survey String
     | UpdateNotes Survey String
     | SaveSurvey Survey
     | LoadSurvey (Result Http.Error Survey)
@@ -276,6 +287,9 @@ update msg model =
 
         UpdateDuttonLast survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | dutton_last = newValue }), Cmd.none )
+
+        UpdateKeyIssue survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | key_issue = newValue }), Cmd.none )
 
         UpdateNotes survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | notes = newValue }), Cmd.none )
@@ -345,6 +359,7 @@ questions question =
                 , ( "worth_returning", [ "", "yes", "no" ] )
                 , ( "voter_id", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
                 , ( "dutton_last", [ "", "yes", "no" ] )
+                , ( "key_issue", [ "", "issue 1", "issue 2" ] )
                 ]
     in
     Maybe.withDefault [] (Dict.get question options)
@@ -408,6 +423,7 @@ canvasHeader street =
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Return" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Voter ID" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Dutton last" ]
+        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Key Issue" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Notes" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Last saved" ]
         , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Actions" ]
@@ -439,6 +455,8 @@ viewCanvas model address =
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateVoterID survey) ] (answerOptions "voter_id" survey.responses.voter_id) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateDuttonLast survey) ] (answerOptions "dutton_last" survey.responses.dutton_last) ]
+        , td [ class "mdl-data-table__cell--non-numeric" ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptions "key_issue" survey.responses.key_issue) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ textarea [ disabled disabledUnlessMeaningful, onInput (UpdateNotes survey) ] [ text survey.responses.notes ] ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
