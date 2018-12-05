@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "build": "elm make src/Main.elm --output ../public/javascript/data_entry.js",
-    "start": "chokidar 'src/*.elm' 'tests/*.elm' -c 'clear && npm run build && npm run test' --initial",
+    "clear": "clear && printf '\\e[3J'",
+    "start": "chokidar 'src/*.elm' 'tests/*.elm' -c 'npm run clear && npm run build && npm run test' --initial",
     "test": "elm-test tests/*"
   },
   "devDependencies": {
