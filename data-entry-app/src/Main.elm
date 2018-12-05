@@ -178,6 +178,7 @@ surveyToJson survey =
                         , ( "worth_returning", Json.Encode.string survey.responses.worth_returning )
                         , ( "voter_id", Json.Encode.string survey.responses.voter_id )
                         , ( "dutton_last", Json.Encode.string survey.responses.dutton_last )
+                        , ( "key_issue", Json.Encode.string survey.responses.key_issue )
                         , ( "notes", Json.Encode.string survey.responses.notes )
                         ]
                   )
