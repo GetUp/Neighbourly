@@ -7383,18 +7383,18 @@ var author$project$Main$Survey = F5(
 		return {block_id: block_id, gnaf_pid: gnaf_pid, responses: responses, survey_on: survey_on, updated_at: updated_at};
 	});
 var author$project$Main$SurveyResponses = F7(
-	function (outcome, dutton_support, worth_returning, voter_id, dutton_last, key_issue, notes) {
-		return {dutton_last: dutton_last, dutton_support: dutton_support, key_issue: key_issue, notes: notes, outcome: outcome, voter_id: voter_id, worth_returning: worth_returning};
+	function (outcome, mp_support, worth_returning, q3_enum, q4_boolean, key_issue, notes) {
+		return {key_issue: key_issue, mp_support: mp_support, notes: notes, outcome: outcome, q3_enum: q3_enum, q4_boolean: q4_boolean, worth_returning: worth_returning};
 	});
 var elm$json$Json$Decode$map7 = _Json_map7;
 var author$project$Main$responsesDecoder = A8(
 	elm$json$Json$Decode$map7,
 	author$project$Main$SurveyResponses,
 	A2(elm$json$Json$Decode$field, 'outcome', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'dutton_support', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'mp_support', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'worth_returning', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'voter_id', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'dutton_last', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'q3_enum', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'q4_boolean', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'key_issue', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'notes', elm$json$Json$Decode$string));
 var elm$json$Json$Decode$fail = _Json_fail;
@@ -8202,17 +8202,17 @@ var author$project$Main$surveyToJson = function (survey) {
 								'outcome',
 								elm$json$Json$Encode$string(survey.responses.outcome)),
 								_Utils_Tuple2(
-								'dutton_support',
-								elm$json$Json$Encode$string(survey.responses.dutton_support)),
+								'mp_support',
+								elm$json$Json$Encode$string(survey.responses.mp_support)),
 								_Utils_Tuple2(
 								'worth_returning',
 								elm$json$Json$Encode$string(survey.responses.worth_returning)),
 								_Utils_Tuple2(
-								'voter_id',
-								elm$json$Json$Encode$string(survey.responses.voter_id)),
+								'q3_enum',
+								elm$json$Json$Encode$string(survey.responses.q3_enum)),
 								_Utils_Tuple2(
-								'dutton_last',
-								elm$json$Json$Encode$string(survey.responses.dutton_last)),
+								'q4_boolean',
+								elm$json$Json$Encode$string(survey.responses.q4_boolean)),
 								_Utils_Tuple2(
 								'key_issue',
 								elm$json$Json$Encode$string(survey.responses.key_issue)),
@@ -8331,7 +8331,7 @@ var author$project$Main$update = F2(
 								{outcome: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateDuttonSupport':
+			case 'UpdateMpSupport':
 				var survey = msg.a;
 				var newValue = msg.b;
 				return _Utils_Tuple2(
@@ -8342,10 +8342,10 @@ var author$project$Main$update = F2(
 						function (r) {
 							return _Utils_update(
 								r,
-								{dutton_support: newValue});
+								{mp_support: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateVoterID':
+			case 'UpdateQ3Enum':
 				var survey = msg.a;
 				var newValue = msg.b;
 				return _Utils_Tuple2(
@@ -8356,7 +8356,7 @@ var author$project$Main$update = F2(
 						function (r) {
 							return _Utils_update(
 								r,
-								{voter_id: newValue});
+								{q3_enum: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'UpdateWorthReturning':
@@ -8373,7 +8373,7 @@ var author$project$Main$update = F2(
 								{worth_returning: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateDuttonLast':
+			case 'UpdateQ4Boolean':
 				var survey = msg.a;
 				var newValue = msg.b;
 				return _Utils_Tuple2(
@@ -8384,7 +8384,7 @@ var author$project$Main$update = F2(
 						function (r) {
 							return _Utils_update(
 								r,
-								{dutton_last: newValue});
+								{q4_boolean: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'UpdateKeyIssue':
@@ -9612,13 +9612,23 @@ var author$project$Main$statusMessage = function (model) {
 	}
 };
 var elm$html$Html$th = _VirtualDom_node('th');
-var author$project$Main$canvasHeader = function (street) {
-	return A2(
-		elm$html$Html$tr,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
+var author$project$Main$canvasHeader = F2(
+	function (campaign, street) {
+		var headers = function () {
+			switch (campaign) {
+				case 'Dickson':
+					return _List_fromArray(
+						[street, 'Outcome', 'Dutton Support', 'Return', 'Voter ID', 'Dutton last', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+				case 'Warringah':
+					return _List_fromArray(
+						[street, 'Outcome', 'Abbott Support', 'Return', 'Independent Support', 'Get involved', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+				default:
+					return _List_fromArray(
+						[street, 'Outcome', 'MP Support', 'Return', 'Voter ID', 'MP last', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+			}
+		}();
+		var headerRow = function (header) {
+			return A2(
 				elm$html$Html$th,
 				_List_fromArray(
 					[
@@ -9626,114 +9636,24 @@ var author$project$Main$canvasHeader = function (street) {
 					]),
 				_List_fromArray(
 					[
-						elm$html$Html$text(street)
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Outcome')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Dutton Support')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Return')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Voter ID')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Dutton last')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Key Issue')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Notes')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Last saved')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Actions')
-					]))
-			]));
-};
+						elm$html$Html$text(header)
+					]));
+		};
+		return A2(
+			elm$html$Html$tr,
+			_List_Nil,
+			A2(elm$core$List$map, headerRow, headers));
+	});
 var author$project$Main$SaveSurvey = function (a) {
 	return {$: 'SaveSurvey', a: a};
 };
-var author$project$Main$UpdateDuttonLast = F2(
-	function (a, b) {
-		return {$: 'UpdateDuttonLast', a: a, b: b};
-	});
-var author$project$Main$UpdateDuttonSupport = F2(
-	function (a, b) {
-		return {$: 'UpdateDuttonSupport', a: a, b: b};
-	});
 var author$project$Main$UpdateKeyIssue = F2(
 	function (a, b) {
 		return {$: 'UpdateKeyIssue', a: a, b: b};
+	});
+var author$project$Main$UpdateMpSupport = F2(
+	function (a, b) {
+		return {$: 'UpdateMpSupport', a: a, b: b};
 	});
 var author$project$Main$UpdateNotes = F2(
 	function (a, b) {
@@ -9743,53 +9663,75 @@ var author$project$Main$UpdateOutcome = F2(
 	function (a, b) {
 		return {$: 'UpdateOutcome', a: a, b: b};
 	});
-var author$project$Main$UpdateVoterID = F2(
+var author$project$Main$UpdateQ3Enum = F2(
 	function (a, b) {
-		return {$: 'UpdateVoterID', a: a, b: b};
+		return {$: 'UpdateQ3Enum', a: a, b: b};
+	});
+var author$project$Main$UpdateQ4Boolean = F2(
+	function (a, b) {
+		return {$: 'UpdateQ4Boolean', a: a, b: b};
 	});
 var author$project$Main$UpdateWorthReturning = F2(
 	function (a, b) {
 		return {$: 'UpdateWorthReturning', a: a, b: b};
 	});
-var author$project$Main$questions = function (question) {
-	var options = elm$core$Dict$fromList(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'outcome',
-				_List_fromArray(
-					['', 'unable to knock', 'not home', 'not interested', 'meaningful conversation'])),
-				_Utils_Tuple2(
-				'dutton_support',
-				_List_fromArray(
-					['', '1 - strongly against', '2 - against', '3 - neutral', '4 - support', '5 - strongly support'])),
-				_Utils_Tuple2(
-				'worth_returning',
-				_List_fromArray(
-					['', 'yes', 'no'])),
-				_Utils_Tuple2(
-				'voter_id',
-				_List_fromArray(
-					['', 'ALP', 'LIB', 'GRN', 'ONP', 'other', 'refused to say'])),
-				_Utils_Tuple2(
-				'dutton_last',
-				_List_fromArray(
-					['', 'yes', 'no'])),
-				_Utils_Tuple2(
-				'key_issue',
-				_List_fromArray(
-					['', 'issue 1', 'issue 2']))
-			]));
+var author$project$Main$booleanAnswer = _List_fromArray(
+	['', 'yes', 'no']);
+var author$project$Main$likertScale = _List_fromArray(
+	['', '1 - strongly against', '2 - against', '3 - neutral', '4 - support', '5 - strongly support']);
+var author$project$Main$questionOptions = elm$core$Dict$fromList(
+	_List_fromArray(
+		[
+			_Utils_Tuple2(
+			'outcome',
+			_List_fromArray(
+				['', 'unable to knock', 'not home', 'not interested', 'meaningful conversation'])),
+			_Utils_Tuple2('mp_support', author$project$Main$likertScale),
+			_Utils_Tuple2('worth_returning', author$project$Main$booleanAnswer),
+			_Utils_Tuple2(
+			'q3_enum',
+			_List_fromArray(
+				['', 'ALP', 'LIB', 'GRN', 'ONP', 'other', 'refused to say'])),
+			_Utils_Tuple2('q4_boolean', author$project$Main$booleanAnswer),
+			_Utils_Tuple2(
+			'key_issue',
+			_List_fromArray(
+				['', 'issue 1', 'issue 2']))
+		]));
+var author$project$Main$defaultQuestions = function (question) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		_List_Nil,
+		A2(elm$core$Dict$get, question, author$project$Main$questionOptions));
+};
+var author$project$Main$warringahQuestions = function (question) {
+	var options = A3(
+		elm$core$Dict$update,
+		'q3_enum',
+		function (v) {
+			return elm$core$Maybe$Just(author$project$Main$likertScale);
+		},
+		author$project$Main$questionOptions);
 	return A2(
 		elm$core$Maybe$withDefault,
 		_List_Nil,
 		A2(elm$core$Dict$get, question, options));
 };
-var author$project$Main$answerOptions = F2(
-	function (question, selectedValue) {
+var author$project$Main$answerOptions = F3(
+	function (campaign, question, selectedValue) {
+		var questions = function () {
+			switch (campaign) {
+				case 'Dickson':
+					return author$project$Main$defaultQuestions;
+				case 'Warringah':
+					return author$project$Main$warringahQuestions;
+				default:
+					return author$project$Main$defaultQuestions;
+			}
+		}();
 		return A2(
 			author$project$Main$buildOptions,
-			author$project$Main$questions(question),
+			questions(question),
 			selectedValue);
 	});
 var author$project$Main$emptySurvey = F3(
@@ -9797,7 +9739,7 @@ var author$project$Main$emptySurvey = F3(
 		return {
 			block_id: block_id,
 			gnaf_pid: gnaf_pid,
-			responses: {dutton_last: '', dutton_support: '', key_issue: '', notes: '', outcome: '', voter_id: '', worth_returning: ''},
+			responses: {key_issue: '', mp_support: '', notes: '', outcome: '', q3_enum: '', q4_boolean: '', worth_returning: ''},
 			survey_on: survey_on,
 			updated_at: ''
 		};
@@ -9821,6 +9763,7 @@ var author$project$Main$viewCanvas = F2(
 			newSurvey,
 			A2(elm$core$Dict$get, address.gnaf_pid, model.canvas));
 		var disabledUnlessMeaningful = survey.responses.outcome !== 'meaningful conversation';
+		var answerOptionsForCampaign = author$project$Main$answerOptions(model.campaign);
 		return A2(
 			elm$html$Html$tr,
 			_List_Nil,
@@ -9863,7 +9806,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateOutcome(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'outcome', survey.responses.outcome))
+							A2(answerOptionsForCampaign, 'outcome', survey.responses.outcome))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9879,9 +9822,9 @@ var author$project$Main$viewCanvas = F2(
 								[
 									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
 									elm$html$Html$Events$onInput(
-									author$project$Main$UpdateDuttonSupport(survey))
+									author$project$Main$UpdateMpSupport(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'dutton_support', survey.responses.dutton_support))
+							A2(answerOptionsForCampaign, 'mp_support', survey.responses.mp_support))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9899,7 +9842,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateWorthReturning(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'worth_returning', survey.responses.worth_returning))
+							A2(answerOptionsForCampaign, 'worth_returning', survey.responses.worth_returning))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9915,9 +9858,9 @@ var author$project$Main$viewCanvas = F2(
 								[
 									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
 									elm$html$Html$Events$onInput(
-									author$project$Main$UpdateVoterID(survey))
+									author$project$Main$UpdateQ3Enum(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'voter_id', survey.responses.voter_id))
+							A2(answerOptionsForCampaign, 'q3_enum', survey.responses.q3_enum))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9933,9 +9876,9 @@ var author$project$Main$viewCanvas = F2(
 								[
 									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
 									elm$html$Html$Events$onInput(
-									author$project$Main$UpdateDuttonLast(survey))
+									author$project$Main$UpdateQ4Boolean(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'dutton_last', survey.responses.dutton_last))
+							A2(answerOptionsForCampaign, 'q4_boolean', survey.responses.q4_boolean))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9953,7 +9896,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateKeyIssue(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'key_issue', survey.responses.key_issue))
+							A2(answerOptionsForCampaign, 'key_issue', survey.responses.key_issue))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -10030,7 +9973,7 @@ var author$project$Main$viewCanvases = function (model) {
 					_Utils_ap(
 						_List_fromArray(
 							[
-								author$project$Main$canvasHeader(address.street)
+								A2(author$project$Main$canvasHeader, model.campaign, address.street)
 							]),
 						_List_fromArray(
 							[
@@ -10093,7 +10036,8 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
 									]),
 								_List_fromArray(
 									[
@@ -10116,7 +10060,8 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
 									]),
 								_List_fromArray(
 									[
@@ -10124,14 +10069,16 @@ var author$project$Main$view = function (model) {
 										elm$html$Html$select,
 										_List_fromArray(
 											[
-												elm$html$Html$Events$onInput(author$project$Main$UpdateCampaign)
+												elm$html$Html$Events$onInput(author$project$Main$UpdateCampaign),
+												elm$html$Html$Attributes$id('campaign'),
+												elm$html$Html$Attributes$class('mdl-textfield__input')
 											]),
 										author$project$Main$campaignOptions(model.campaign)),
 										A2(
 										elm$html$Html$label,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$class(''),
+												elm$html$Html$Attributes$class('mdl-textfield__label'),
 												elm$html$Html$Attributes$for('campaign')
 											]),
 										_List_fromArray(
@@ -10143,7 +10090,8 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
 									]),
 								_List_fromArray(
 									[
