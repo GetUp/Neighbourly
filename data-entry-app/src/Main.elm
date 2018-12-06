@@ -65,10 +65,10 @@ type alias Address =
 
 type alias SurveyResponses =
     { outcome : SurveyResponse
-    , dutton_support : SurveyResponse
+    , mp_support : SurveyResponse
     , worth_returning : SurveyResponse
-    , voter_id : SurveyResponse
-    , dutton_last : SurveyResponse
+    , q3_enum : SurveyResponse
+    , q4_boolean : SurveyResponse
     , key_issue : SurveyResponse
     , notes : SurveyResponse
     }
@@ -91,10 +91,10 @@ emptySurvey gnaf_pid block_id survey_on =
     , updated_at = ""
     , responses =
         { outcome = ""
-        , dutton_support = ""
+        , mp_support = ""
         , worth_returning = ""
-        , voter_id = ""
-        , dutton_last = ""
+        , q3_enum = ""
+        , q4_boolean = ""
         , key_issue = ""
         , notes = ""
         }
@@ -125,10 +125,10 @@ responsesDecoder =
     map7
         SurveyResponses
         (field "outcome" string)
-        (field "dutton_support" string)
+        (field "mp_support" string)
         (field "worth_returning" string)
-        (field "voter_id" string)
-        (field "dutton_last" string)
+        (field "q3_enum" string)
+        (field "q4_boolean" string)
         (field "key_issue" string)
         (field "notes" string)
 
@@ -149,7 +149,13 @@ stringToDate date =
 
 surveyDecoder : Decoder Survey
 surveyDecoder =
-    map5 Survey (field "gnaf_pid" string) (field "block_id" string) (field "survey_on" string |> andThen stringToDate) (field "updated_at" string) (at [ "responses" ] responsesDecoder)
+    map5
+        Survey
+        (field "gnaf_pid" string)
+        (field "block_id" string)
+        (field "survey_on" string |> andThen stringToDate)
+        (field "updated_at" string)
+        (at [ "responses" ] responsesDecoder)
 
 
 getAddressesForBlockId : BlockID -> Date -> Cmd Msg
@@ -175,10 +181,10 @@ surveyToJson survey =
                 , ( "responses"
                   , Json.Encode.object
                         [ ( "outcome", Json.Encode.string survey.responses.outcome )
-                        , ( "dutton_support", Json.Encode.string survey.responses.dutton_support )
+                        , ( "mp_support", Json.Encode.string survey.responses.mp_support )
                         , ( "worth_returning", Json.Encode.string survey.responses.worth_returning )
-                        , ( "voter_id", Json.Encode.string survey.responses.voter_id )
-                        , ( "dutton_last", Json.Encode.string survey.responses.dutton_last )
+                        , ( "q3_enum", Json.Encode.string survey.responses.q3_enum )
+                        , ( "q4_boolean", Json.Encode.string survey.responses.q4_boolean )
                         , ( "key_issue", Json.Encode.string survey.responses.key_issue )
                         , ( "notes", Json.Encode.string survey.responses.notes )
                         ]
@@ -240,10 +246,10 @@ type Msg
     | ToDatePicker DatePicker.Msg
     | SetDate (Maybe Date)
     | UpdateOutcome Survey String
-    | UpdateDuttonSupport Survey String
+    | UpdateMpSupport Survey String
     | UpdateWorthReturning Survey String
-    | UpdateVoterID Survey String
-    | UpdateDuttonLast Survey String
+    | UpdateQ3Enum Survey String
+    | UpdateQ4Boolean Survey String
     | UpdateKeyIssue Survey String
     | UpdateNotes Survey String
     | SaveSurvey Survey
@@ -282,17 +288,17 @@ update msg model =
         UpdateOutcome survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | outcome = newValue }), Cmd.none )
 
-        UpdateDuttonSupport survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | dutton_support = newValue }), Cmd.none )
+        UpdateMpSupport survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | mp_support = newValue }), Cmd.none )
 
-        UpdateVoterID survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | voter_id = newValue }), Cmd.none )
+        UpdateQ3Enum survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | q3_enum = newValue }), Cmd.none )
 
         UpdateWorthReturning survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | worth_returning = newValue }), Cmd.none )
 
-        UpdateDuttonLast survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | dutton_last = newValue }), Cmd.none )
+        UpdateQ4Boolean survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | q4_boolean = newValue }), Cmd.none )
 
         UpdateKeyIssue survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | key_issue = newValue }), Cmd.none )
@@ -361,10 +367,10 @@ questions question =
         options =
             Dict.fromList
                 [ ( "outcome", [ "", "unable to knock", "not home", "not interested", "meaningful conversation" ] )
-                , ( "dutton_support", [ "", "1 - strongly against", "2 - against", "3 - neutral", "4 - support", "5 - strongly support" ] )
+                , ( "mp_support", [ "", "1 - strongly against", "2 - against", "3 - neutral", "4 - support", "5 - strongly support" ] )
                 , ( "worth_returning", [ "", "yes", "no" ] )
-                , ( "voter_id", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
-                , ( "dutton_last", [ "", "yes", "no" ] )
+                , ( "q3_enum", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
+                , ( "q4_boolean", [ "", "yes", "no" ] )
                 , ( "key_issue", [ "", "issue 1", "issue 2" ] )
                 ]
     in
@@ -464,13 +470,13 @@ viewCanvas model address =
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ onInput (UpdateOutcome survey) ] (answerOptions "outcome" survey.responses.outcome) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateDuttonSupport survey) ] (answerOptions "dutton_support" survey.responses.dutton_support) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupport survey) ] (answerOptions "mp_support" survey.responses.mp_support) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateWorthReturning survey) ] (answerOptions "worth_returning" survey.responses.worth_returning) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateVoterID survey) ] (answerOptions "voter_id" survey.responses.voter_id) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ3Enum survey) ] (answerOptions "q3_enum" survey.responses.q3_enum) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateDuttonLast survey) ] (answerOptions "dutton_last" survey.responses.dutton_last) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ4Boolean survey) ] (answerOptions "q4_boolean" survey.responses.q4_boolean) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptions "key_issue" survey.responses.key_issue) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]

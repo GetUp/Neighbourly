@@ -7383,18 +7383,18 @@ var author$project$Main$Survey = F5(
 		return {block_id: block_id, gnaf_pid: gnaf_pid, responses: responses, survey_on: survey_on, updated_at: updated_at};
 	});
 var author$project$Main$SurveyResponses = F7(
-	function (outcome, dutton_support, worth_returning, voter_id, dutton_last, key_issue, notes) {
-		return {dutton_last: dutton_last, dutton_support: dutton_support, key_issue: key_issue, notes: notes, outcome: outcome, voter_id: voter_id, worth_returning: worth_returning};
+	function (outcome, mp_support, worth_returning, q3_enum, q4_boolean, key_issue, notes) {
+		return {key_issue: key_issue, mp_support: mp_support, notes: notes, outcome: outcome, q3_enum: q3_enum, q4_boolean: q4_boolean, worth_returning: worth_returning};
 	});
 var elm$json$Json$Decode$map7 = _Json_map7;
 var author$project$Main$responsesDecoder = A8(
 	elm$json$Json$Decode$map7,
 	author$project$Main$SurveyResponses,
 	A2(elm$json$Json$Decode$field, 'outcome', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'dutton_support', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'mp_support', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'worth_returning', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'voter_id', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'dutton_last', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'q3_enum', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'q4_boolean', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'key_issue', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'notes', elm$json$Json$Decode$string));
 var elm$json$Json$Decode$fail = _Json_fail;
@@ -8202,17 +8202,17 @@ var author$project$Main$surveyToJson = function (survey) {
 								'outcome',
 								elm$json$Json$Encode$string(survey.responses.outcome)),
 								_Utils_Tuple2(
-								'dutton_support',
-								elm$json$Json$Encode$string(survey.responses.dutton_support)),
+								'mp_support',
+								elm$json$Json$Encode$string(survey.responses.mp_support)),
 								_Utils_Tuple2(
 								'worth_returning',
 								elm$json$Json$Encode$string(survey.responses.worth_returning)),
 								_Utils_Tuple2(
-								'voter_id',
-								elm$json$Json$Encode$string(survey.responses.voter_id)),
+								'q3_enum',
+								elm$json$Json$Encode$string(survey.responses.q3_enum)),
 								_Utils_Tuple2(
-								'dutton_last',
-								elm$json$Json$Encode$string(survey.responses.dutton_last)),
+								'q4_boolean',
+								elm$json$Json$Encode$string(survey.responses.q4_boolean)),
 								_Utils_Tuple2(
 								'key_issue',
 								elm$json$Json$Encode$string(survey.responses.key_issue)),
@@ -8331,7 +8331,7 @@ var author$project$Main$update = F2(
 								{outcome: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateDuttonSupport':
+			case 'UpdateMpSupport':
 				var survey = msg.a;
 				var newValue = msg.b;
 				return _Utils_Tuple2(
@@ -8342,10 +8342,10 @@ var author$project$Main$update = F2(
 						function (r) {
 							return _Utils_update(
 								r,
-								{dutton_support: newValue});
+								{mp_support: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateVoterID':
+			case 'UpdateQ3Enum':
 				var survey = msg.a;
 				var newValue = msg.b;
 				return _Utils_Tuple2(
@@ -8356,7 +8356,7 @@ var author$project$Main$update = F2(
 						function (r) {
 							return _Utils_update(
 								r,
-								{voter_id: newValue});
+								{q3_enum: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'UpdateWorthReturning':
@@ -8373,7 +8373,7 @@ var author$project$Main$update = F2(
 								{worth_returning: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
-			case 'UpdateDuttonLast':
+			case 'UpdateQ4Boolean':
 				var survey = msg.a;
 				var newValue = msg.b;
 				return _Utils_Tuple2(
@@ -8384,7 +8384,7 @@ var author$project$Main$update = F2(
 						function (r) {
 							return _Utils_update(
 								r,
-								{dutton_last: newValue});
+								{q4_boolean: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'UpdateKeyIssue':
@@ -9723,17 +9723,13 @@ var author$project$Main$canvasHeader = function (street) {
 var author$project$Main$SaveSurvey = function (a) {
 	return {$: 'SaveSurvey', a: a};
 };
-var author$project$Main$UpdateDuttonLast = F2(
-	function (a, b) {
-		return {$: 'UpdateDuttonLast', a: a, b: b};
-	});
-var author$project$Main$UpdateDuttonSupport = F2(
-	function (a, b) {
-		return {$: 'UpdateDuttonSupport', a: a, b: b};
-	});
 var author$project$Main$UpdateKeyIssue = F2(
 	function (a, b) {
 		return {$: 'UpdateKeyIssue', a: a, b: b};
+	});
+var author$project$Main$UpdateMpSupport = F2(
+	function (a, b) {
+		return {$: 'UpdateMpSupport', a: a, b: b};
 	});
 var author$project$Main$UpdateNotes = F2(
 	function (a, b) {
@@ -9743,9 +9739,13 @@ var author$project$Main$UpdateOutcome = F2(
 	function (a, b) {
 		return {$: 'UpdateOutcome', a: a, b: b};
 	});
-var author$project$Main$UpdateVoterID = F2(
+var author$project$Main$UpdateQ3Enum = F2(
 	function (a, b) {
-		return {$: 'UpdateVoterID', a: a, b: b};
+		return {$: 'UpdateQ3Enum', a: a, b: b};
+	});
+var author$project$Main$UpdateQ4Boolean = F2(
+	function (a, b) {
+		return {$: 'UpdateQ4Boolean', a: a, b: b};
 	});
 var author$project$Main$UpdateWorthReturning = F2(
 	function (a, b) {
@@ -9760,7 +9760,7 @@ var author$project$Main$questions = function (question) {
 				_List_fromArray(
 					['', 'unable to knock', 'not home', 'not interested', 'meaningful conversation'])),
 				_Utils_Tuple2(
-				'dutton_support',
+				'mp_support',
 				_List_fromArray(
 					['', '1 - strongly against', '2 - against', '3 - neutral', '4 - support', '5 - strongly support'])),
 				_Utils_Tuple2(
@@ -9768,11 +9768,11 @@ var author$project$Main$questions = function (question) {
 				_List_fromArray(
 					['', 'yes', 'no'])),
 				_Utils_Tuple2(
-				'voter_id',
+				'q3_enum',
 				_List_fromArray(
 					['', 'ALP', 'LIB', 'GRN', 'ONP', 'other', 'refused to say'])),
 				_Utils_Tuple2(
-				'dutton_last',
+				'q4_boolean',
 				_List_fromArray(
 					['', 'yes', 'no'])),
 				_Utils_Tuple2(
@@ -9797,7 +9797,7 @@ var author$project$Main$emptySurvey = F3(
 		return {
 			block_id: block_id,
 			gnaf_pid: gnaf_pid,
-			responses: {dutton_last: '', dutton_support: '', key_issue: '', notes: '', outcome: '', voter_id: '', worth_returning: ''},
+			responses: {key_issue: '', mp_support: '', notes: '', outcome: '', q3_enum: '', q4_boolean: '', worth_returning: ''},
 			survey_on: survey_on,
 			updated_at: ''
 		};
@@ -9879,9 +9879,9 @@ var author$project$Main$viewCanvas = F2(
 								[
 									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
 									elm$html$Html$Events$onInput(
-									author$project$Main$UpdateDuttonSupport(survey))
+									author$project$Main$UpdateMpSupport(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'dutton_support', survey.responses.dutton_support))
+							A2(author$project$Main$answerOptions, 'mp_support', survey.responses.mp_support))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9915,9 +9915,9 @@ var author$project$Main$viewCanvas = F2(
 								[
 									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
 									elm$html$Html$Events$onInput(
-									author$project$Main$UpdateVoterID(survey))
+									author$project$Main$UpdateQ3Enum(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'voter_id', survey.responses.voter_id))
+							A2(author$project$Main$answerOptions, 'q3_enum', survey.responses.q3_enum))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9933,9 +9933,9 @@ var author$project$Main$viewCanvas = F2(
 								[
 									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
 									elm$html$Html$Events$onInput(
-									author$project$Main$UpdateDuttonLast(survey))
+									author$project$Main$UpdateQ4Boolean(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'dutton_last', survey.responses.dutton_last))
+							A2(author$project$Main$answerOptions, 'q4_boolean', survey.responses.q4_boolean))
 						])),
 					A2(
 					elm$html$Html$td,
