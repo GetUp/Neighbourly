@@ -9675,45 +9675,63 @@ var author$project$Main$UpdateWorthReturning = F2(
 	function (a, b) {
 		return {$: 'UpdateWorthReturning', a: a, b: b};
 	});
-var author$project$Main$questions = function (question) {
-	var options = elm$core$Dict$fromList(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'outcome',
-				_List_fromArray(
-					['', 'unable to knock', 'not home', 'not interested', 'meaningful conversation'])),
-				_Utils_Tuple2(
-				'mp_support',
-				_List_fromArray(
-					['', '1 - strongly against', '2 - against', '3 - neutral', '4 - support', '5 - strongly support'])),
-				_Utils_Tuple2(
-				'worth_returning',
-				_List_fromArray(
-					['', 'yes', 'no'])),
-				_Utils_Tuple2(
-				'q3_enum',
-				_List_fromArray(
-					['', 'ALP', 'LIB', 'GRN', 'ONP', 'other', 'refused to say'])),
-				_Utils_Tuple2(
-				'q4_boolean',
-				_List_fromArray(
-					['', 'yes', 'no'])),
-				_Utils_Tuple2(
-				'key_issue',
-				_List_fromArray(
-					['', 'issue 1', 'issue 2']))
-			]));
+var author$project$Main$booleanAnswer = _List_fromArray(
+	['', 'yes', 'no']);
+var author$project$Main$likertScale = _List_fromArray(
+	['', '1 - strongly against', '2 - against', '3 - neutral', '4 - support', '5 - strongly support']);
+var author$project$Main$questionOptions = elm$core$Dict$fromList(
+	_List_fromArray(
+		[
+			_Utils_Tuple2(
+			'outcome',
+			_List_fromArray(
+				['', 'unable to knock', 'not home', 'not interested', 'meaningful conversation'])),
+			_Utils_Tuple2('mp_support', author$project$Main$likertScale),
+			_Utils_Tuple2('worth_returning', author$project$Main$booleanAnswer),
+			_Utils_Tuple2(
+			'q3_enum',
+			_List_fromArray(
+				['', 'ALP', 'LIB', 'GRN', 'ONP', 'other', 'refused to say'])),
+			_Utils_Tuple2('q4_boolean', author$project$Main$booleanAnswer),
+			_Utils_Tuple2(
+			'key_issue',
+			_List_fromArray(
+				['', 'issue 1', 'issue 2']))
+		]));
+var author$project$Main$defaultQuestions = function (question) {
+	return A2(
+		elm$core$Maybe$withDefault,
+		_List_Nil,
+		A2(elm$core$Dict$get, question, author$project$Main$questionOptions));
+};
+var author$project$Main$warringahQuestions = function (question) {
+	var options = A3(
+		elm$core$Dict$update,
+		'q3_enum',
+		function (v) {
+			return elm$core$Maybe$Just(author$project$Main$likertScale);
+		},
+		author$project$Main$questionOptions);
 	return A2(
 		elm$core$Maybe$withDefault,
 		_List_Nil,
 		A2(elm$core$Dict$get, question, options));
 };
-var author$project$Main$answerOptions = F2(
-	function (question, selectedValue) {
+var author$project$Main$answerOptions = F3(
+	function (campaign, question, selectedValue) {
+		var questions = function () {
+			switch (campaign) {
+				case 'Dickson':
+					return author$project$Main$defaultQuestions;
+				case 'Warringah':
+					return author$project$Main$warringahQuestions;
+				default:
+					return author$project$Main$defaultQuestions;
+			}
+		}();
 		return A2(
 			author$project$Main$buildOptions,
-			author$project$Main$questions(question),
+			questions(question),
 			selectedValue);
 	});
 var author$project$Main$emptySurvey = F3(
@@ -9745,6 +9763,7 @@ var author$project$Main$viewCanvas = F2(
 			newSurvey,
 			A2(elm$core$Dict$get, address.gnaf_pid, model.canvas));
 		var disabledUnlessMeaningful = survey.responses.outcome !== 'meaningful conversation';
+		var answerOptionsForCampaign = author$project$Main$answerOptions(model.campaign);
 		return A2(
 			elm$html$Html$tr,
 			_List_Nil,
@@ -9787,7 +9806,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateOutcome(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'outcome', survey.responses.outcome))
+							A2(answerOptionsForCampaign, 'outcome', survey.responses.outcome))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9805,7 +9824,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateMpSupport(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'mp_support', survey.responses.mp_support))
+							A2(answerOptionsForCampaign, 'mp_support', survey.responses.mp_support))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9823,7 +9842,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateWorthReturning(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'worth_returning', survey.responses.worth_returning))
+							A2(answerOptionsForCampaign, 'worth_returning', survey.responses.worth_returning))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9841,7 +9860,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateQ3Enum(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'q3_enum', survey.responses.q3_enum))
+							A2(answerOptionsForCampaign, 'q3_enum', survey.responses.q3_enum))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9859,7 +9878,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateQ4Boolean(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'q4_boolean', survey.responses.q4_boolean))
+							A2(answerOptionsForCampaign, 'q4_boolean', survey.responses.q4_boolean))
 						])),
 					A2(
 					elm$html$Html$td,
@@ -9877,7 +9896,7 @@ var author$project$Main$viewCanvas = F2(
 									elm$html$Html$Events$onInput(
 									author$project$Main$UpdateKeyIssue(survey))
 								]),
-							A2(author$project$Main$answerOptions, 'key_issue', survey.responses.key_issue))
+							A2(answerOptionsForCampaign, 'key_issue', survey.responses.key_issue))
 						])),
 					A2(
 					elm$html$Html$td,

@@ -361,18 +361,35 @@ subscriptions model =
 -- Views
 
 
-questions : String -> List String
-questions question =
+likertScale =
+    [ "", "1 - strongly against", "2 - against", "3 - neutral", "4 - support", "5 - strongly support" ]
+
+
+booleanAnswer =
+    [ "", "yes", "no" ]
+
+
+questionOptions =
+    Dict.fromList
+        [ ( "outcome", [ "", "unable to knock", "not home", "not interested", "meaningful conversation" ] )
+        , ( "mp_support", likertScale )
+        , ( "worth_returning", booleanAnswer )
+        , ( "q3_enum", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
+        , ( "q4_boolean", booleanAnswer )
+        , ( "key_issue", [ "", "issue 1", "issue 2" ] )
+        ]
+
+
+defaultQuestions : String -> List String
+defaultQuestions question =
+    Maybe.withDefault [] (Dict.get question questionOptions)
+
+
+warringahQuestions : String -> List String
+warringahQuestions question =
     let
         options =
-            Dict.fromList
-                [ ( "outcome", [ "", "unable to knock", "not home", "not interested", "meaningful conversation" ] )
-                , ( "mp_support", [ "", "1 - strongly against", "2 - against", "3 - neutral", "4 - support", "5 - strongly support" ] )
-                , ( "worth_returning", [ "", "yes", "no" ] )
-                , ( "q3_enum", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
-                , ( "q4_boolean", [ "", "yes", "no" ] )
-                , ( "key_issue", [ "", "issue 1", "issue 2" ] )
-                ]
+            Dict.update "q3_enum" (\v -> Just likertScale) questionOptions
     in
     Maybe.withDefault [] (Dict.get question options)
 
@@ -386,8 +403,20 @@ datepickerSettings =
     }
 
 
-answerOptions : String -> String -> List (Html Msg)
-answerOptions question selectedValue =
+answerOptions : String -> String -> String -> List (Html Msg)
+answerOptions campaign question selectedValue =
+    let
+        questions =
+            case campaign of
+                "Dickson" ->
+                    defaultQuestions
+
+                "Warringah" ->
+                    warringahQuestions
+
+                _ ->
+                    defaultQuestions
+    in
     buildOptions (questions question) selectedValue
 
 
@@ -460,6 +489,9 @@ canvasHeader campaign street =
 viewCanvas : Model -> Address -> Html Msg
 viewCanvas model address =
     let
+        answerOptionsForCampaign =
+            answerOptions model.campaign
+
         newSurvey =
             emptySurvey address.gnaf_pid model.blockId model.date
 
@@ -473,17 +505,17 @@ viewCanvas model address =
         [ td [ class "mdl-data-table__cell--non-numeric" ]
             [ text (String.replace address.street "" address.address), br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ onInput (UpdateOutcome survey) ] (answerOptions "outcome" survey.responses.outcome) ]
+            [ select [ onInput (UpdateOutcome survey) ] (answerOptionsForCampaign "outcome" survey.responses.outcome) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupport survey) ] (answerOptions "mp_support" survey.responses.mp_support) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupport survey) ] (answerOptionsForCampaign "mp_support" survey.responses.mp_support) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateWorthReturning survey) ] (answerOptions "worth_returning" survey.responses.worth_returning) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateWorthReturning survey) ] (answerOptionsForCampaign "worth_returning" survey.responses.worth_returning) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ3Enum survey) ] (answerOptions "q3_enum" survey.responses.q3_enum) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ3Enum survey) ] (answerOptionsForCampaign "q3_enum" survey.responses.q3_enum) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ4Boolean survey) ] (answerOptions "q4_boolean" survey.responses.q4_boolean) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ4Boolean survey) ] (answerOptionsForCampaign "q4_boolean" survey.responses.q4_boolean) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptions "key_issue" survey.responses.key_issue) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptionsForCampaign "key_issue" survey.responses.key_issue) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ textarea [ disabled disabledUnlessMeaningful, onInput (UpdateNotes survey) ] [ text survey.responses.notes ] ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
