@@ -10059,7 +10059,7 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
 									]),
 								_List_fromArray(
 									[
@@ -10067,14 +10067,16 @@ var author$project$Main$view = function (model) {
 										elm$html$Html$select,
 										_List_fromArray(
 											[
-												elm$html$Html$Events$onInput(author$project$Main$UpdateCampaign)
+												elm$html$Html$Events$onInput(author$project$Main$UpdateCampaign),
+												elm$html$Html$Attributes$id('campaign'),
+												elm$html$Html$Attributes$class('mdl-textfield__input')
 											]),
 										author$project$Main$campaignOptions(model.campaign)),
 										A2(
 										elm$html$Html$label,
 										_List_fromArray(
 											[
-												elm$html$Html$Attributes$class(''),
+												elm$html$Html$Attributes$class('mdl-textfield__label'),
 												elm$html$Html$Attributes$for('campaign')
 											]),
 										_List_fromArray(

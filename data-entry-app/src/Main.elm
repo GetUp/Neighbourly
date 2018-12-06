@@ -561,9 +561,9 @@ view model =
                         |> Html.map ToDatePicker
                     , label [ class "mdl-textfield__label" ] [ text "Select the date of the doorknock" ]
                     ]
-                , div [ class "" ]
-                    [ select [ onInput UpdateCampaign ] (campaignOptions model.campaign)
-                    , label [ class "", for "campaign" ] [ text "Campaign" ]
+                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
+                    [ select [ onInput UpdateCampaign, id "campaign", class "mdl-textfield__input" ] (campaignOptions model.campaign)
+                    , label [ class "mdl-textfield__label", for "campaign" ] [ text "Campaign" ]
                     ]
                 , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
                     [ input [ onInput UpdateBlockID, value model.blockId, id "block-id", class "mdl-textfield__input", type_ "text" ] []
