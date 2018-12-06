@@ -10036,7 +10036,8 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
 									]),
 								_List_fromArray(
 									[
@@ -10059,7 +10060,8 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
 									]),
 								_List_fromArray(
 									[
@@ -10088,7 +10090,8 @@ var author$project$Main$view = function (model) {
 								elm$html$Html$div,
 								_List_fromArray(
 									[
-										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label')
+										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
 									]),
 								_List_fromArray(
 									[

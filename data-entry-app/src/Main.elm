@@ -556,16 +556,16 @@ view model =
     div [ class "mdl-grid" ]
         [ div [ class "mdl-card mdl-card mdl-cell mdl-cell--9-col-desktop mdl-cell--6-col-tablet mdl-cell--4-col-phone mdl-shadow--2dp date-picker-cell" ]
             [ div [ class "mdl-card__supporting-text" ]
-                [ div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
+                [ div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px" ]
                     [ DatePicker.view model.date datepickerSettings model.datePicker
                         |> Html.map ToDatePicker
                     , label [ class "mdl-textfield__label" ] [ text "Select the date of the doorknock" ]
                     ]
-                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
+                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px" ]
                     [ select [ onInput UpdateCampaign, id "campaign", class "mdl-textfield__input" ] (campaignOptions model.campaign)
                     , label [ class "mdl-textfield__label", for "campaign" ] [ text "Campaign" ]
                     ]
-                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
+                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px" ]
                     [ input [ onInput UpdateBlockID, value model.blockId, id "block-id", class "mdl-textfield__input", type_ "text" ] []
                     , label [ class "mdl-textfield__label", for "block-id" ] [ text (statusMessage model) ]
                     ]
