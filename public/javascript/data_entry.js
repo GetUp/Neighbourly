@@ -5593,7 +5593,7 @@ var author$project$Main$init = function (_n0) {
 	var datePicker = _n1.a;
 	var datePickerFx = _n1.b;
 	return _Utils_Tuple2(
-		{addresses: _List_Nil, blockId: '', canvas: elm$core$Dict$empty, date: elm$core$Maybe$Nothing, datePicker: datePicker, status: '', valid: author$project$Main$Unknown},
+		{addresses: _List_Nil, blockId: '', campaign: '', canvas: elm$core$Dict$empty, date: elm$core$Maybe$Nothing, datePicker: datePicker, status: '', valid: author$project$Main$Unknown},
 		elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
@@ -8214,6 +8214,9 @@ var author$project$Main$surveyToJson = function (survey) {
 								'dutton_last',
 								elm$json$Json$Encode$string(survey.responses.dutton_last)),
 								_Utils_Tuple2(
+								'key_issue',
+								elm$json$Json$Encode$string(survey.responses.key_issue)),
+								_Utils_Tuple2(
 								'notes',
 								elm$json$Json$Encode$string(survey.responses.notes))
 							])))
@@ -8285,6 +8288,13 @@ var author$project$Main$update = F2(
 			});
 		var _n0 = A2(elm$core$Debug$log, 'Message: ', msg);
 		switch (msg.$) {
+			case 'UpdateCampaign':
+				var newCampaign = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{campaign: newCampaign}),
+					elm$core$Platform$Cmd$none);
 			case 'UpdateBlockID':
 				var newBlockId = msg.a;
 				var _n2 = model.date;
@@ -9561,6 +9571,33 @@ var CurrySoftware$elm_datepicker$DatePicker$view = F3(
 var author$project$Main$UpdateBlockID = function (a) {
 	return {$: 'UpdateBlockID', a: a};
 };
+var author$project$Main$UpdateCampaign = function (a) {
+	return {$: 'UpdateCampaign', a: a};
+};
+var author$project$Main$buildOptions = F2(
+	function (options, selectedValue) {
+		var answerOption = function (value) {
+			return A2(
+				elm$html$Html$option,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$selected(
+						_Utils_eq(value, selectedValue))
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(value)
+					]));
+		};
+		return A2(elm$core$List$map, answerOption, options);
+	});
+var author$project$Main$campaignOptions = function (selectedCampaign) {
+	return A2(
+		author$project$Main$buildOptions,
+		_List_fromArray(
+			['', 'Dickson', 'Warringah']),
+		selectedCampaign);
+};
 var author$project$Main$ifThen = F2(
 	function (condition, stringToAppend) {
 		return condition ? (' ' + stringToAppend) : '';
@@ -9750,23 +9787,10 @@ var author$project$Main$questions = function (question) {
 };
 var author$project$Main$answerOptions = F2(
 	function (question, selectedValue) {
-		var answerOption = function (value) {
-			return A2(
-				elm$html$Html$option,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$selected(
-						_Utils_eq(value, selectedValue))
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text(value)
-					]));
-		};
 		return A2(
-			elm$core$List$map,
-			answerOption,
-			author$project$Main$questions(question));
+			author$project$Main$buildOptions,
+			author$project$Main$questions(question),
+			selectedValue);
 	});
 var author$project$Main$emptySurvey = F3(
 	function (gnaf_pid, block_id, survey_on) {
@@ -10086,6 +10110,33 @@ var author$project$Main$view = function (model) {
 										_List_fromArray(
 											[
 												elm$html$Html$text('Select the date of the doorknock')
+											]))
+									])),
+								A2(
+								elm$html$Html$div,
+								_List_fromArray(
+									[
+										elm$html$Html$Attributes$class('')
+									]),
+								_List_fromArray(
+									[
+										A2(
+										elm$html$Html$select,
+										_List_fromArray(
+											[
+												elm$html$Html$Events$onInput(author$project$Main$UpdateCampaign)
+											]),
+										author$project$Main$campaignOptions(model.campaign)),
+										A2(
+										elm$html$Html$label,
+										_List_fromArray(
+											[
+												elm$html$Html$Attributes$class(''),
+												elm$html$Html$Attributes$for('campaign')
+											]),
+										_List_fromArray(
+											[
+												elm$html$Html$text('Campaign')
 											]))
 									])),
 								A2(

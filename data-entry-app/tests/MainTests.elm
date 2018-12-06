@@ -19,6 +19,7 @@ suite =
                     let
                         loadedModel =
                             Model
+                                ""
                                 "1"
                                 ""
                                 Valid

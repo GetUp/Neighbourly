@@ -24,7 +24,8 @@ main =
 
 
 type alias Model =
-    { blockId : BlockID
+    { campaign : String
+    , blockId : BlockID
     , status : String
     , valid : ValidationStatus
     , addresses : List Address
@@ -233,7 +234,8 @@ toUrl id survey_on =
 
 
 type Msg
-    = UpdateBlockID String
+    = UpdateCampaign String
+    | UpdateBlockID String
     | LoadAddresses (Result Http.Error AddressAndCanvasData)
     | ToDatePicker DatePicker.Msg
     | SetDate (Maybe Date)
@@ -262,6 +264,9 @@ update msg model =
             Debug.log "Message: " msg
     in
     case msg of
+        UpdateCampaign newCampaign ->
+            ( { model | campaign = newCampaign }, Cmd.none )
+
         UpdateBlockID newBlockId ->
             case model.date of
                 Nothing ->
@@ -377,11 +382,21 @@ datepickerSettings =
 
 answerOptions : String -> String -> List (Html Msg)
 answerOptions question selectedValue =
+    buildOptions (questions question) selectedValue
+
+
+buildOptions : List String -> String -> List (Html Msg)
+buildOptions options selectedValue =
     let
         answerOption value =
             option [ selected (value == selectedValue) ] [ text value ]
     in
-    List.map answerOption (questions question)
+    List.map answerOption options
+
+
+campaignOptions : String -> List (Html Msg)
+campaignOptions selectedCampaign =
+    buildOptions [ "", "Dickson", "Warringah" ] selectedCampaign
 
 
 validationMessage : BlockID -> String
@@ -503,6 +518,10 @@ view model =
                         |> Html.map ToDatePicker
                     , label [ class "mdl-textfield__label" ] [ text "Select the date of the doorknock" ]
                     ]
+                , div [ class "" ]
+                    [ select [ onInput UpdateCampaign ] (campaignOptions model.campaign)
+                    , label [ class "", for "campaign" ] [ text "Campaign" ]
+                    ]
                 , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label" ]
                     [ input [ onInput UpdateBlockID, value model.blockId, id "block-id", class "mdl-textfield__input", type_ "text" ] []
                     , label [ class "mdl-textfield__label", for "block-id" ] [ text (statusMessage model) ]
@@ -538,7 +557,8 @@ init _ =
         ( datePicker, datePickerFx ) =
             DatePicker.init
     in
-    ( { blockId = ""
+    ( { campaign = ""
+      , blockId = ""
       , status = ""
       , valid = Unknown
       , addresses = []
