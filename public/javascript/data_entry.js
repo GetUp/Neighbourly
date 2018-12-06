@@ -9612,13 +9612,23 @@ var author$project$Main$statusMessage = function (model) {
 	}
 };
 var elm$html$Html$th = _VirtualDom_node('th');
-var author$project$Main$canvasHeader = function (street) {
-	return A2(
-		elm$html$Html$tr,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
+var author$project$Main$canvasHeader = F2(
+	function (campaign, street) {
+		var headers = function () {
+			switch (campaign) {
+				case 'Dickson':
+					return _List_fromArray(
+						[street, 'Outcome', 'Dutton Support', 'Return', 'Voter ID', 'Dutton last', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+				case 'Warringah':
+					return _List_fromArray(
+						[street, 'Outcome', 'Abbott Support', 'Return', 'Independent Support', 'Get involved', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+				default:
+					return _List_fromArray(
+						[street, 'Outcome', 'MP Support', 'Return', 'Voter ID', 'MP last', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+			}
+		}();
+		var headerRow = function (header) {
+			return A2(
 				elm$html$Html$th,
 				_List_fromArray(
 					[
@@ -9626,100 +9636,14 @@ var author$project$Main$canvasHeader = function (street) {
 					]),
 				_List_fromArray(
 					[
-						elm$html$Html$text(street)
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Outcome')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Dutton Support')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Return')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Voter ID')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Dutton last')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Key Issue')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Notes')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Last saved')
-					])),
-				A2(
-				elm$html$Html$th,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
-					]),
-				_List_fromArray(
-					[
-						elm$html$Html$text('Actions')
-					]))
-			]));
-};
+						elm$html$Html$text(header)
+					]));
+		};
+		return A2(
+			elm$html$Html$tr,
+			_List_Nil,
+			A2(elm$core$List$map, headerRow, headers));
+	});
 var author$project$Main$SaveSurvey = function (a) {
 	return {$: 'SaveSurvey', a: a};
 };
@@ -10030,7 +9954,7 @@ var author$project$Main$viewCanvases = function (model) {
 					_Utils_ap(
 						_List_fromArray(
 							[
-								author$project$Main$canvasHeader(address.street)
+								A2(author$project$Main$canvasHeader, model.campaign, address.street)
 							]),
 						_List_fromArray(
 							[

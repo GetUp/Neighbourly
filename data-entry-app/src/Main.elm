@@ -423,7 +423,7 @@ viewCanvases model =
                     Tuple.second result
             in
             if lastStreet /= address.street then
-                ( previousRows ++ [ canvasHeader address.street ] ++ [ viewCanvas model address ], address.street )
+                ( previousRows ++ [ canvasHeader model.campaign address.street ] ++ [ viewCanvas model address ], address.street )
 
             else
                 ( previousRows ++ [ viewCanvas model address ], address.street )
@@ -436,20 +436,25 @@ viewCanvases model =
         )
 
 
-canvasHeader : String -> Html Msg
-canvasHeader street =
-    tr []
-        [ th [ class "mdl-data-table__cell--non-numeric" ] [ text street ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Outcome" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Dutton Support" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Return" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Voter ID" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Dutton last" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Key Issue" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Notes" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Last saved" ]
-        , th [ class "mdl-data-table__cell--non-numeric" ] [ text "Actions" ]
-        ]
+canvasHeader : String -> String -> Html Msg
+canvasHeader campaign street =
+    let
+        headers =
+            case campaign of
+                "Dickson" ->
+                    [ street, "Outcome", "Dutton Support", "Return", "Voter ID", "Dutton last", "Key Issue", "Notes", "Last saved", "Actions" ]
+
+                "Warringah" ->
+                    [ street, "Outcome", "Abbott Support", "Return", "Independent Support", "Get involved", "Key Issue", "Notes", "Last saved", "Actions" ]
+
+                _ ->
+                    [ street, "Outcome", "MP Support", "Return", "Voter ID", "MP last", "Key Issue", "Notes", "Last saved", "Actions" ]
+
+        headerRow : String -> Html Msg
+        headerRow header =
+            th [ class "mdl-data-table__cell--non-numeric" ] [ text header ]
+    in
+    tr [] <| List.map headerRow headers
 
 
 viewCanvas : Model -> Address -> Html Msg
