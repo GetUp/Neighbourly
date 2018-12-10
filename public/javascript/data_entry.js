@@ -9703,7 +9703,7 @@ var author$project$Main$questionOptions = elm$core$Dict$fromList(
 			_Utils_Tuple2(
 			'key_issue',
 			_List_fromArray(
-				['', 'issue 1', 'issue 2']))
+				['', 'Abortion', 'Aged care', 'Childcare', 'Corp/High income tax', 'Cost of living', 'Donation disclosure', 'Education funding', 'Environment', 'Healthcare funding', 'Immigration', 'Other', 'Pension', 'Unemployment']))
 		]));
 var author$project$Main$defaultQuestions = function (question) {
 	return A2(

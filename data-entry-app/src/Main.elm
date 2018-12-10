@@ -376,7 +376,7 @@ questionOptions =
         , ( "worth_returning", booleanAnswer )
         , ( "q3_enum", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
         , ( "q4_boolean", booleanAnswer )
-        , ( "key_issue", [ "", "issue 1", "issue 2" ] )
+        , ( "key_issue", [ "", "Abortion", "Aged care", "Childcare", "Corp/High income tax", "Cost of living", "Donation disclosure", "Education funding", "Environment", "Healthcare funding", "Immigration", "Other", "Pension", "Unemployment" ] )
         ]
 
 
