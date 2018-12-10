@@ -9598,6 +9598,13 @@ var author$project$Main$campaignOptions = function (selectedCampaign) {
 			['', 'Dickson', 'Warringah']),
 		selectedCampaign);
 };
+var author$project$Main$hiddenUnlessDate = function (maybeDate) {
+	if (maybeDate.$ === 'Nothing') {
+		return 'hidden';
+	} else {
+		return 'initial';
+	}
+};
 var author$project$Main$ifThen = F2(
 	function (condition, stringToAppend) {
 		return condition ? (' ' + stringToAppend) : '';
@@ -10061,7 +10068,11 @@ var author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
-										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px'),
+										A2(
+										elm$html$Html$Attributes$style,
+										'visibility',
+										author$project$Main$hiddenUnlessDate(model.date))
 									]),
 								_List_fromArray(
 									[
@@ -10091,7 +10102,11 @@ var author$project$Main$view = function (model) {
 								_List_fromArray(
 									[
 										elm$html$Html$Attributes$class('mdl-textfield mdl-js-textfield mdl-textfield--floating-label'),
-										A2(elm$html$Html$Attributes$style, 'margin-right', '10px')
+										A2(elm$html$Html$Attributes$style, 'margin-right', '10px'),
+										A2(
+										elm$html$Html$Attributes$style,
+										'visibility',
+										author$project$Main$hiddenUnlessDate(model.date))
 									]),
 								_List_fromArray(
 									[
