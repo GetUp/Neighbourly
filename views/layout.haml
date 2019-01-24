@@ -1,25 +1,25 @@
 %html
   %head
-    %meta{:property => "og:title", :content => "GetUp Doorknocking"}
-    %meta{:property => "og:description", :content => "GetUp doorknocking map page."}
-    %meta{:property => "og:description", :content => "/images/logo.svg"}
+    %meta{:property => "og:title", :content => ENV['APP_NAME']}
+    %meta{:property => "og:description", :content => ENV['APP_DESCRIPTION']}
     %script{:src => "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js", :type => "text/javascript"}
-    %link{:href => "img/favicon.ico", :rel => "icon", :type => "img/ico"}
-    %link{:href => "/stylesheets/normalize.css", :rel => "stylesheet"}/
-    %link{:href => "/stylesheets/skeleton.css", :rel => "stylesheet"}/
-    %link{:href => "/stylesheets/main.css", :rel => "stylesheet"}/
-    %link{:href => "/stylesheets/elm-datepicker.css", :rel => "stylesheet"}/
-    = File.read "./public/facebook_pixel.html"
-    = File.read "./public/google_tag.html"
-    %title GetUp! Doorknocking
+    %link{:href => "favicon.ico", :rel => "icon", :type => "img/ico"}
+    %link{:href => versioned_stylesheet('normalize'), :rel => "stylesheet"}
+    %link{:href => versioned_stylesheet('skeleton'), :rel => "stylesheet"}
+    %link{:href => versioned_stylesheet('main'), :rel => "stylesheet"}
+    %link{:href => versioned_stylesheet('elm-datepicker'), :rel => "stylesheet"}
+    / = File.read "./public/facebook_pixel.html"
+    / = File.read "./public/google_tag.html"
+    %title= ENV['APP_NAME']
     - if page == 'map'
       %script{src: 'https://code.jquery.com/ui/1.12.1/jquery-ui.js'}
       %script{:src => "https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"}
       %script{ src: '/javascript/js.cookie.js', type: 'text/javascript' }
-      %link{:href => "https://unpkg.com/leaflet@0.7.7/dist/leaflet.css", :rel => "stylesheet"}/
-    %link{:href => "/stylesheets/theme.css", :rel => "stylesheet"}/
-    %link{:href => "/stylesheets/mapHeader.css", :rel => "stylesheet"}/
-    %link{:href => "//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css", :rel => "stylesheet"}/
+      %link{:href => "https://unpkg.com/leaflet@0.7.7/dist/leaflet.css", :rel => "stylesheet"}
+      %link{:href => versioned_stylesheet('theme'), :rel => "stylesheet"}
+      %link{:href => versioned_stylesheet('mapHeader'), :rel => "stylesheet"}
+      %link{:href => "//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css", :rel => "stylesheet"}
+
   %body{class: body_class(body)}
     #load.hidden
     .header
