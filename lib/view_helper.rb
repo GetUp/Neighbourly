@@ -6,6 +6,14 @@ module Sinatra
       def body_class(body)
         body ? body : nil
       end
+
+      def campaigns
+        [
+          'If applicable, select campaign before claiming',
+          'Dickson',
+          'Warringah',
+        ]
+      end
     end
 
     def self.registered(app)

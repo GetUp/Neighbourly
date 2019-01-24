@@ -293,3 +293,7 @@ table.highlight-focus tr:focus-within td{
 table.highlight-focus tr:focus-within td:focus-within {
   background-color: #d9edf7;
 }
+
+#campaign {
+  margin-top: 10px;
+}
