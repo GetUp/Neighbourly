@@ -1,4 +1,19 @@
-var makeMap = function (stateColors) {
+function makeMap() {
+  var claimStyles = {
+    claimed_by_you: {
+      "fillColor": "#9d5fa7", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
+    }, //Purple
+    unclaimed: {
+      "fillColor": "#ffc746", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.2
+    }, //Yellow
+    claimed: {
+      "fillColor": "#d5545a", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
+    }, //Red
+    quarantine: {
+      "fillColor": "#6dbd4b", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
+    }, //Green
+  };
+
   var map = L.map('map');
 
   var mesh_layer; //Rendered map
@@ -52,10 +67,10 @@ var makeMap = function (stateColors) {
     var layer = L.geoJson(json, {
       style: function (feature) {
         switch (feature.properties.claim_status) {
-          case 'claimed_by_you': return stateColors.claimed_by_you
-          case 'claimed': return stateColors.claimed
-          case 'quarantine': return stateColors.quarantine
-          default: return stateColors.unclaimed
+          case 'claimed_by_you': return claimStyles.claimed_by_you
+          case 'claimed': return claimStyles.claimed
+          case 'quarantine': return claimStyles.quarantine
+          default: return claimStyles.unclaimed
         }
       },
       onEachFeature: function (feature, featureLayer) {
@@ -98,9 +113,9 @@ var makeMap = function (stateColors) {
           $('.download').removeClass('hidden');
           $('.claim').addClass('hidden');
           if ($("#map").data("is-admin") === true) {
-            this.setStyle(stateColors.quarantine)
+            this.setStyle(claimStyles.quarantine)
           } else {
-            this.setStyle(stateColors.claimed_by_you)
+            this.setStyle(claimStyles.claimed_by_you)
           }
           $('#load').removeClass('hidden');
           downloadmesh(leaflet_id);
@@ -108,7 +123,7 @@ var makeMap = function (stateColors) {
 
         this.btnUnclaim = function (featureLayer) {
           $.post("/unclaim_meshblock/" + this._leaflet_id);
-          this.setStyle(stateColors.unclaimed)
+          this.setStyle(claimStyles.unclaimed)
           $('.unclaim').addClass('hidden');
           $('.download').addClass('hidden');
           $('.claim').removeClass('hidden');
@@ -252,10 +267,10 @@ var makeMap = function (stateColors) {
   legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'legend');
     div.innerHTML = [
-      '<i style="background:' + stateColors.claimed_by_you.fillColor + '"></i><div>My area</div>',
-      '<i style="background:' + stateColors.claimed.fillColor + '"></i><div>Claimed</div>',
-      '<i style="background:' + stateColors.quarantine.fillColor + '"></i><div>Organised door knocking event</div>',
-      '<i style="background:' + stateColors.unclaimed.fillColor + '"></i><div>Yet to be claimed!</div>'
+      '<i style="background:', claimStyles.claimed_by_you.fillColor, '"></i><div>My area</div>',
+      '<i style="background:', claimStyles.claimed.fillColor, '"></i><div>Claimed</div>',
+      '<i style="background:', claimStyles.quarantine.fillColor, '"></i><div>Organised door knocking event</div>',
+      '<i style="background:', claimStyles.unclaimed.fillColor, '"></i><div>Yet to be claimed!</div>'
     ].join('');
     return div;
   }
@@ -264,54 +279,33 @@ var makeMap = function (stateColors) {
   map.whenReady(updateMap);
 }
 
-var windowHeight = function () {
-  if (window.innerHeight != undefined) {
-    return window.innerHeight;
-  }
-  else {
-    var B = document.body, D = document.documentElement;
-    return Math.max(D.clientHeight, B.clientHeight);
-  }
+
+
+function windowHeight() {
+  if (window.innerHeight != undefined) return window.innerHeight;
+  var B = document.body, D = document.documentElement;
+  return Math.max(B.clientHeight, D.clientHeight);
 }
+var headerHeight = $('.header').height();
 
-$('#map').height(windowHeight() - $('.header').height());
+$('#map').height(windowHeight() - headerHeight);
 $('#map').width("100%");
+makeMap();
 
-var stateColors = {
-  claimed_by_you: {
-    "fillColor": "#9d5fa7", "color": "#111111",
-    "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
-  }, //Purple
-  unclaimed: {
-    "fillColor": "#ffc746", "color": "#111111",
-    "weight": 1, "opacity": 0.65, "fillOpacity": 0.2
-  }, //Yellow
-  claimed: {
-    "fillColor": "#d5545a", "color": "#111111",
-    "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
-  }, //Red
-  quarantine: {
-    "fillColor": "#6dbd4b", "color": "#111111",
-    "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
-  }, //Green
-};
 
-function openfaq() {
-  $("#dialog").dialog({
-    minWidth: 800, width: 800,
-    height: Math.min(windowHeight() - $('.header').height() - 200, 800),
-    beforeClose: function (e, ui) { $("#dialog").addClass('hidden'); }
+function openHelp() {
+  $('#dialog').dialog({
+    minWidth: 800,
+    width: 800,
+    height: Math.min(windowHeight() - headerHeight - 200, 800),
+    beforeClose: function () { $('#dialog').addClass('hidden') }
   });
-  $("#dialog").dialog({ position: { my: "center top", at: "center top+15%", of: window } });
-  $("#dialog").removeClass('hidden');
+  $('#dialog').dialog({ position: { my: 'center top', at: 'center top+15%', of: window } });
+  $('#dialog').removeClass('hidden');
+  try { window.localStorage.setItem('helpSeen', 'true') } catch (_) { }
 };
+$('#faqlink').click(openHelp);
 
-$('#faqlink').click(function () {
-  openfaq();
-});
-
-var map = makeMap(stateColors);
-
-$(window).load(function () {
-  openfaq();
-});
+var helpSeen = 'false';
+try { helpSeen = window.localStorage.getItem('helpSeen') } catch (_) { }
+if (helpSeen !== 'true') $(window).load(openHelp);
