@@ -160,7 +160,10 @@ surveyDecoder =
 
 getAddressesForBlockId : BlockID -> Date -> Cmd Msg
 getAddressesForBlockId id survey_on =
-    Http.send LoadAddresses (Http.get (toUrl id survey_on) addressAndCanvasDecoder)
+    Http.get
+        { url = toUrl id survey_on
+        , expect = Http.expectJson LoadAddresses addressAndCanvasDecoder
+        }
 
 
 
@@ -198,8 +201,11 @@ surveyToJson survey =
 
 upsertSurvey : Survey -> Cmd Msg
 upsertSurvey survey =
-    Http.send LoadSurvey
-        (Http.post (Url.crossOrigin apiBase [ "prod", "survey" ] []) (Http.jsonBody (surveyToJson survey)) surveyDecoder)
+    Http.post
+        { url = Url.crossOrigin apiBase [ "prod", "survey" ] []
+        , body = Http.jsonBody (surveyToJson survey)
+        , expect = Http.expectJson LoadSurvey surveyDecoder
+        }
 
 
 httpErrorString : Http.Error -> String
@@ -214,15 +220,11 @@ httpErrorString error =
         Http.NetworkError ->
             "Network Error"
 
-        Http.BadStatus response ->
-            "Bad Http Status: " ++ toString response.status.code
+        Http.BadStatus statusCode ->
+            "Bad Http Status: " ++ toString statusCode
 
-        Http.BadPayload message response ->
-            "Bad Http Payload: "
-                ++ toString message
-                ++ " ("
-                ++ toString response.status.code
-                ++ ")"
+        Http.BadBody message ->
+            "Bad Http Payload: " ++ toString message
 
 
 apiBase : String
