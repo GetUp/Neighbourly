@@ -9,7 +9,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map7, string)
+import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, string)
 import Json.Encode
 import Task
 import Url.Builder as Url
@@ -65,10 +65,8 @@ type alias Address =
 
 type alias SurveyResponses =
     { outcome : SurveyResponse
-    , mp_support : SurveyResponse
-    , worth_returning : SurveyResponse
-    , q3_enum : SurveyResponse
-    , q4_boolean : SurveyResponse
+    , mp_support_before : SurveyResponse
+    , mp_support_after : SurveyResponse
     , key_issue : SurveyResponse
     , notes : SurveyResponse
     }
@@ -91,10 +89,8 @@ emptySurvey gnaf_pid block_id survey_on =
     , updated_at = ""
     , responses =
         { outcome = ""
-        , mp_support = ""
-        , worth_returning = ""
-        , q3_enum = ""
-        , q4_boolean = ""
+        , mp_support_before = ""
+        , mp_support_after = ""
         , key_issue = ""
         , notes = ""
         }
@@ -122,13 +118,11 @@ surveysDecoder =
 
 responsesDecoder : Decoder SurveyResponses
 responsesDecoder =
-    map7
+    map5
         SurveyResponses
         (field "outcome" string)
-        (field "mp_support" string)
-        (field "worth_returning" string)
-        (field "q3_enum" string)
-        (field "q4_boolean" string)
+        (field "mp_support_before" string)
+        (field "mp_support_after" string)
         (field "key_issue" string)
         (field "notes" string)
 
@@ -184,10 +178,8 @@ surveyToJson survey =
                 , ( "responses"
                   , Json.Encode.object
                         [ ( "outcome", Json.Encode.string survey.responses.outcome )
-                        , ( "mp_support", Json.Encode.string survey.responses.mp_support )
-                        , ( "worth_returning", Json.Encode.string survey.responses.worth_returning )
-                        , ( "q3_enum", Json.Encode.string survey.responses.q3_enum )
-                        , ( "q4_boolean", Json.Encode.string survey.responses.q4_boolean )
+                        , ( "mp_support_before", Json.Encode.string survey.responses.mp_support_before )
+                        , ( "mp_support_after", Json.Encode.string survey.responses.mp_support_after )
                         , ( "key_issue", Json.Encode.string survey.responses.key_issue )
                         , ( "notes", Json.Encode.string survey.responses.notes )
                         ]
@@ -248,10 +240,8 @@ type Msg
     | ToDatePicker DatePicker.Msg
     | SetDate (Maybe Date)
     | UpdateOutcome Survey String
-    | UpdateMpSupport Survey String
-    | UpdateWorthReturning Survey String
-    | UpdateQ3Enum Survey String
-    | UpdateQ4Boolean Survey String
+    | UpdateMpSupportBefore Survey String
+    | UpdateMpSupportAfter Survey String
     | UpdateKeyIssue Survey String
     | UpdateNotes Survey String
     | SaveSurvey Survey
@@ -290,17 +280,11 @@ update msg model =
         UpdateOutcome survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | outcome = newValue }), Cmd.none )
 
-        UpdateMpSupport survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | mp_support = newValue }), Cmd.none )
+        UpdateMpSupportBefore survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | mp_support_before = newValue }), Cmd.none )
 
-        UpdateQ3Enum survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | q3_enum = newValue }), Cmd.none )
-
-        UpdateWorthReturning survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | worth_returning = newValue }), Cmd.none )
-
-        UpdateQ4Boolean survey newValue ->
-            ( updateModelWithSurveyResponse model survey (\r -> { r | q4_boolean = newValue }), Cmd.none )
+        UpdateMpSupportAfter survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | mp_support_after = newValue }), Cmd.none )
 
         UpdateKeyIssue survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | key_issue = newValue }), Cmd.none )
@@ -374,10 +358,9 @@ booleanAnswer =
 questionOptions =
     Dict.fromList
         [ ( "outcome", [ "", "unable to knock", "not home", "not interested", "meaningful conversation" ] )
-        , ( "mp_support", likertScale )
-        , ( "worth_returning", booleanAnswer )
-        , ( "q3_enum", [ "", "ALP", "LIB", "GRN", "ONP", "other", "refused to say" ] )
-        , ( "q4_boolean", booleanAnswer )
+        , ( "mp_support_before", likertScale )
+        , ( "mp_support_after", likertScale )
+        , ( "get_involved", booleanAnswer )
         , ( "key_issue", [ "", "Abortion", "Aged care", "Childcare", "Corp/High income tax", "Cost of living", "Donation disclosure", "Education funding", "Environment", "Healthcare funding", "Immigration", "Other", "Pension", "Unemployment" ] )
         ]
 
@@ -385,15 +368,6 @@ questionOptions =
 defaultQuestions : String -> List String
 defaultQuestions question =
     Maybe.withDefault [] (Dict.get question questionOptions)
-
-
-warringahQuestions : String -> List String
-warringahQuestions question =
-    let
-        options =
-            Dict.update "q3_enum" (\v -> Just likertScale) questionOptions
-    in
-    Maybe.withDefault [] (Dict.get question options)
 
 
 datepickerSettings : DatePicker.Settings
@@ -414,7 +388,7 @@ answerOptions campaign question selectedValue =
                     defaultQuestions
 
                 "Warringah" ->
-                    warringahQuestions
+                    defaultQuestions
 
                 _ ->
                     defaultQuestions
@@ -473,13 +447,13 @@ canvasHeader campaign street =
         headers =
             case campaign of
                 "Dickson" ->
-                    [ street, "Outcome", "Dutton Support", "Return", "Voter ID", "Dutton last", "Key Issue", "Notes", "Last saved", "Actions" ]
+                    [ street, "Outcome", "Dutton Support Before", "Dutton Support After", "Key Issue", "Notes", "Last saved", "Actions" ]
 
                 "Warringah" ->
-                    [ street, "Outcome", "Abbott Support", "Return", "Independent Support", "Get involved", "Key Issue", "Notes", "Last saved", "Actions" ]
+                    [ street, "Outcome", "Abbott Support Before", "Abbott Support After", "Key Issue", "Notes", "Last saved", "Actions" ]
 
                 _ ->
-                    [ street, "Outcome", "MP Support", "Return", "Voter ID", "MP last", "Key Issue", "Notes", "Last saved", "Actions" ]
+                    [ street, "Outcome", "MP Support Before", "MP Support After", "Key Issue", "Notes", "Last saved", "Actions" ]
 
         headerRow : String -> Html Msg
         headerRow header =
@@ -509,13 +483,9 @@ viewCanvas model address =
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ onInput (UpdateOutcome survey) ] (answerOptionsForCampaign "outcome" survey.responses.outcome) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupport survey) ] (answerOptionsForCampaign "mp_support" survey.responses.mp_support) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupportBefore survey) ] (answerOptionsForCampaign "mp_support_before" survey.responses.mp_support_before) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateWorthReturning survey) ] (answerOptionsForCampaign "worth_returning" survey.responses.worth_returning) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ3Enum survey) ] (answerOptionsForCampaign "q3_enum" survey.responses.q3_enum) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateQ4Boolean survey) ] (answerOptionsForCampaign "q4_boolean" survey.responses.q4_boolean) ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupportAfter survey) ] (answerOptionsForCampaign "mp_support_after" survey.responses.mp_support_after) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptionsForCampaign "key_issue" survey.responses.key_issue) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
