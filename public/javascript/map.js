@@ -63,7 +63,8 @@ var makeMap = function (stateColors) {
 
         function downloadmesh(mesh_id) {
           var campaign = $('#campaign').val();
-          var url = 'https://4oqtu02x7f.execute-api.ap-southeast-2.amazonaws.com/prod/map?slug=' + mesh_id + '&campaign=' + campaign;
+          var lambda_base_url = $("#map").data("lambda-base-url");
+          var url = lambda_base_url + '/map?slug=' + mesh_id + '&campaign=' + campaign;
           var base64str = $.get(url, function (base64str) {
             if (base64str.message == "Internal server error") {
               return alert("This area cannot be downloaded due to a pdf rendering error, please try another area.");
@@ -96,7 +97,11 @@ var makeMap = function (stateColors) {
           $('.unclaim').removeClass('hidden');
           $('.download').removeClass('hidden');
           $('.claim').addClass('hidden');
-          this.setStyle(stateColors.claimed_by_you)
+          if ($("#map").data("is-admin") === true) {
+            this.setStyle(stateColors.quarantine)
+          } else {
+            this.setStyle(stateColors.claimed_by_you)
+          }
           $('#load').removeClass('hidden');
           downloadmesh(leaflet_id);
         }
@@ -144,7 +149,7 @@ var makeMap = function (stateColors) {
         otherstxtcontainer.innerHTML = 'This area is claimed by someone else and is unable to be claimed.'
         var quarantinetxtcontainer = L.DomUtil.create('div', 'popuptxt hidden quarantinetext', container)
         quarantinetxtcontainer.innerHTML = 'This area is coordinated by a central event. ' +
-          '<a href="http://www.yes.org.au/centrally_coordinated_door_knocking_events">Click here</a> to find it.';
+          '<a href="' + $("#map").data("central-events-url") + '" target="_blank">Click here</a> to find it.';
         if (feature.properties.claim_status === 'claimed_by_you') {
           L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden');
           L.DomUtil.removeClass(downloadout.grpdiv, 'hidden');
@@ -155,7 +160,12 @@ var makeMap = function (stateColors) {
           var popup = L.popup({}, featureLayer).setContent(container);
         }
         else if (feature.properties.claim_status === 'quarantine') {
-          L.DomUtil.removeClass(quarantinetxtcontainer, 'hidden');
+          if ($("#map").data("is-admin") === true) {
+            L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden');
+            L.DomUtil.removeClass(downloadout.grpdiv, 'hidden');
+          } else {
+            L.DomUtil.removeClass(quarantinetxtcontainer, 'hidden');
+          }
           var popup = L.popup({}, featureLayer).setContent(container);
         }
         else {

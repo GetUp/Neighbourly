@@ -1,10 +1,10 @@
-.map#map
+.map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": ENV['LAMBDA_BASE_URL']}
 .div.hidden{id: "dialog", title: "FAQ"}
   .faq-intro
     %p Welcome to the doorknocking tool!
     %p Once you click out of this pop up, you’ll be able to zoom in and claim a local block or blocks to doorknock.
     %p You’ll then be able to download maps, along with some tips and tricks, and a conversation guide.
-    %p And all other instructions will be sent to your inbox.
+    /%p And all other instructions will be sent to your inbox.
   .faq-qa
     %p.question Q: Why can't I see any doorknock areas?
     %p.answer A: You may be zoomed out too far - or you might be in an area with no residentially zoned areas.  To fix this or to check if there are no residential zones near you, zoom or pan the map onto a town or city.
@@ -12,4 +12,4 @@
     %p.answer A: Click on an area and then select "Claim + Download".  An area may be claimed by someone else, in which case you won't see this button.
     %p.question Q: Why can't my postcode be found?
     %p.answer A: Ensure you are entering a 4 digit postcode (e.g. "0810" instead of "810").  You can also zoom out and scroll around the map if your postcode is not working.
-%script{ src: '/javascript/map.js', type: 'text/javascript' }
+%script{ src: versioned_javascript('map'), type: 'text/javascript' }
