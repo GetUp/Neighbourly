@@ -144,32 +144,31 @@ get '/logout' do
   redirect '/'
 end
 
+def claim_status(claimer)
+  if is_admin?(claimer)
+    "quarantine"
+  elsif claimer == session[:user_email]
+    "claimed_by_you"
+  else
+    "claimed"
+  end
+end
+
 def get_meshblocks_with_status(json)
   slugs = json["features"].map{|feature| feature["properties"]["slug"] }
   claim_service = ClaimService.new(settings.db)
   claims = claim_service.claims(slugs)
-  claimed, centrally_claimed, claimed_by_you = [], [], []
 
-  claims.each do |claim|
-    if is_admin?(claim[:mesh_block_claimer])
-      centrally_claimed << claim[:mesh_block_slug]
-    elsif claim[:mesh_block_claimer] == session[:user_email]
-      claimed_by_you << claim[:mesh_block_slug]
-    else
-      claimed << claim[:mesh_block_slug]
-    end
+  statuses = claims.map do |c|
+    [ c[:mesh_block_slug], claim_status(c[:mesh_block_claimer]) ]
+  end.to_h
+
+  json["features"] = json["features"].map do |feature|
+    state = statuses[feature["properties"]["slug"].to_s]
+    feature["properties"]["claim_status"] = state || "unclaimed"
+    feature
   end
-  json["features"].each_with_index { |slug, index|
-    if centrally_claimed.include? slug["properties"]["slug"]
-      json["features"][index]["properties"]["claim_status"] = "quarantine"
-    elsif claimed.include? slug["properties"]["slug"]
-      json["features"][index]["properties"]["claim_status"] = "claimed"
-    elsif claimed_by_you.include? slug["properties"]["slug"]
-      json["features"][index]["properties"]["claim_status"] = "claimed_by_you"
-    else
-      json["features"][index]["properties"]["claim_status"] = "unclaimed"
-    end
-  }
+
   json
 end
 
