@@ -15,7 +15,6 @@ require_relative "lib/login_helper"
 require_relative 'lib/view_helper'
 require_relative './services/claim_service'
 require_relative './services/geo_service'
-require_relative './services/AwsLambda/connection'
 require_relative "models/user"
 
 Dotenv.load
@@ -146,15 +145,12 @@ get '/logout' do
 end
 
 def get_meshblocks_with_status(json)
-  slugs = Array.new
-  json["features"].each do |slug|
-    slugs << slug["properties"]["slug"]
-  end
+  slugs = json["features"].map{|feature| feature["properties"]["slug"] }
   claim_service = ClaimService.new(settings.db)
-  claimed = Array.new
-  centrally_claimed = Array.new
-  claimed_by_you = Array.new
-  claim_service.get_mesh_blocks(slugs).each do |claim|
+  claims = claim_service.claims(slugs)
+  claimed, centrally_claimed, claimed_by_you = [], [], []
+
+  claims.each do |claim|
     if is_admin?(claim[:mesh_block_claimer])
       centrally_claimed << claim[:mesh_block_slug]
     elsif claim[:mesh_block_claimer] == session[:user_email]
@@ -180,16 +176,10 @@ end
 #For loading new SA1s when scrolling on the map
 get '/meshblocks_bounds' do
   authorised do
-    query = {'swlat' => params[:swlat],
-    'swlng' => params[:swlng],
-    'nelat' => params[:nelat],
-    'nelng' => params[:nelng]}
+    url = "#{ENV['LAMBDA_BASE_URL']}/territories/bounds"
+    response = HTTParty.get(url, {query: params})
+    data = JSON.parse response.body
 
-    #interface with darren's tool goes here
-    lambda_connection = AwsLambda::Connection.new
-
-    #interface with local claims table goes here
-    data = lambda_connection.execute(query)
     if data['features'] == nil
         puts "404 due to map location returning no meshblocks"
         status 404

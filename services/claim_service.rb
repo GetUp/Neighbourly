@@ -5,9 +5,9 @@ class ClaimService
     @db = db
   end
 
-  def get_mesh_blocks(slugs)
+  def claims(slugs)
     @db[:claims].
-      where('mesh_block_slug IN ?', slugs)
+      where('mesh_block_slug IN ?', slugs.map(&:to_s))
   end
 
   def claim(mesh_block, claimer)

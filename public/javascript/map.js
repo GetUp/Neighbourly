@@ -43,7 +43,7 @@ function makeMap() {
     var lng = Cookies.get("lng");
     var pcode = Cookies.get("postcode");
     if (lat && lng) {
-      var zoom = Cookies.set("zoom");
+      var zoom = Cookies.get("zoom");
       if (zoom) {
         map.setView([lat, lng], zoom)
       }
@@ -78,8 +78,7 @@ function makeMap() {
 
         function downloadmesh(mesh_id) {
           var campaign = $('#campaign').val();
-          var lambda_base_url = $("#map").data("lambda-base-url");
-          var url = lambda_base_url + '/map?slug=' + mesh_id + '&campaign=' + campaign;
+          var url = LAMBDA_BASE_URL + '/map?slug=' + mesh_id + '&campaign=' + campaign;
           var base64str = $.get(url, function (base64str) {
             if (base64str.message == "Internal server error") {
               return alert("This area cannot be downloaded due to a pdf rendering error, please try another area.");
@@ -196,10 +195,12 @@ function makeMap() {
   };
 
   function getMeshblockCallback(json) {
-    if (mesh_layer) { map.removeLayer(mesh_layer) };
-    mesh_layer = addGeoJsonProperties(json);
-    mesh_layer.addTo(map);
-    $('#load').addClass('hidden');
+    last_update_bounds = map.getBounds()
+    last_update_centroid = map.getCenter()
+    if (mesh_layer) { map.removeLayer(mesh_layer) }
+    mesh_layer = addGeoJsonProperties(json)
+    mesh_layer.addTo(map)
+    $('#load').addClass('hidden')
   };
 
   var instruct = L.control();
@@ -217,26 +218,24 @@ function makeMap() {
   instruct.addTo(map);
 
   function updateMap() {
+    var distance_moved, reload_dist
     var lat_lng_bnd = map.getBounds();
     var lat_lng_centroid = map.getCenter();
     Cookies.set("lat", lat_lng_centroid.lat);
     Cookies.set("lng", lat_lng_centroid.lng);
     if (last_update_centroid) {
-      var distance_moved = lat_lng_centroid.distanceTo(last_update_centroid);
+      distance_moved = lat_lng_centroid.distanceTo(last_update_centroid)
+    } else {
+      distance_moved = 201
     }
-    else { var distance_moved = 201 };
     var zoom = map.getZoom();
     if (zoom > 14) {
-      var reload_dist = 1000 / (zoom - 14);
+      reload_dist = 1000 / (zoom - 14);
+    } else {
+      reload_dist = 0;
     }
-    else {
-      var reload_dist = 0;
-    };
     Cookies.set("zoom", zoom);
-    var swlat = lat_lng_bnd.getSouthWest().lat;
-    var swlng = lat_lng_bnd.getSouthWest().lng;
-    var nelat = lat_lng_bnd.getNorthEast().lat;
-    var nelng = lat_lng_bnd.getNorthEast().lng;
+
     //Reload map if zoom not too high
     //Distance moved is not short
     //and
@@ -244,19 +243,21 @@ function makeMap() {
     if (zoom > 14 && (!last_update_bounds || distance_moved > reload_dist) &&
       (!last_update_bounds || !last_update_bounds.contains(lat_lng_bnd))) {
       $('#load').removeClass('hidden');
-      var url = '/meshblocks_bounds?swlat=' + swlat + '&swlng=' + swlng
-        + '&nelat=' + nelat + '&nelng=' + nelng;
-      $.getJSON(url, function (json) {
-        getMeshblockCallback(json);
-        last_update_bounds = map.getBounds();
-        last_update_centroid = map.getCenter();
-      })
+
+      var data = {
+        sey: lat_lng_bnd.getSouthWest().lat,
+        sex: lat_lng_bnd.getSouthWest().lng,
+        nwy: lat_lng_bnd.getNorthEast().lat,
+        nwx: lat_lng_bnd.getNorthEast().lng,
+      }
+
+      $.getJSON('/meshblocks_bounds', data, getMeshblockCallback)
         .fail(function () {
-          $('#load').addClass('hidden');
-        });
+          $('#load').addClass('hidden')
+        })
     }
-    instruct.update();
-  };
+    instruct.update()
+  }
 
   map.on('moveend', function () {
     updateMap();
@@ -288,6 +289,7 @@ function windowHeight() {
 }
 var headerHeight = $('.header').height();
 
+var LAMBDA_BASE_URL = $("#map").data("lambda-base-url");
 $('#map').height(windowHeight() - headerHeight);
 $('#map').width("100%");
 makeMap();
