@@ -1,18 +1,14 @@
 function makeMap() {
+  var commonStyles = { "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.5 }
   var claimStyles = {
-    claimed_by_you: {
-      "fillColor": "#9d5fa7", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
-    }, //Purple
-    unclaimed: {
-      "fillColor": "#ffc746", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.2
-    }, //Yellow
-    claimed: {
-      "fillColor": "#d5545a", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
-    }, //Red
-    quarantine: {
-      "fillColor": "#6dbd4b", "color": "#111111", "weight": 1, "opacity": 0.65, "fillOpacity": 0.8
-    }, //Green
-  };
+    claimed_by_you: $.extend({}, commonStyles, { "fillColor": "#9d5fa7", "fillOpacity": 0.8 }),
+    claimed: $.extend({}, commonStyles, { "fillColor": "#d5545a", "fillOpacity": 0.8 }),
+    quarantine: $.extend({}, commonStyles, { "fillColor": "#6dbd4b", "fillOpacity": 0.8 }),
+    firstQuartile: $.extend({}, commonStyles, { "fillColor": "#eff3ff" }),
+    secondQuartile: $.extend({}, commonStyles, { "fillColor": "#bdd7e7" }),
+    thirdQuartile: $.extend({}, commonStyles, { "fillColor": "#6baed6" }),
+    fourthQuartile: $.extend({}, commonStyles, { "fillColor": "#2171b5" }),
+  }
 
   var map = L.map('map');
 
@@ -62,10 +58,12 @@ function makeMap() {
 
   FindLocation();
 
-  function priorityColour(feature) {
-    var style = $.extend({}, claimStyles.unclaimed)
-    style.fillOpacity = feature.properties.avg_swing_propensity
-    return style
+  function priorityStyles(feature) {
+    var propensity = feature.properties.avg_swing_propensity
+    if (propensity < 0.2625) return claimStyles.firstQuartile
+    if (propensity < 0.3250) return claimStyles.secondQuartile
+    if (propensity < 0.3875) return claimStyles.thirdQuartile
+    return claimStyles.fourthQuartile
   }
 
   function addGeoJsonProperties(json) {
@@ -76,7 +74,7 @@ function makeMap() {
           case 'claimed_by_you': return claimStyles.claimed_by_you
           case 'claimed': return claimStyles.claimed
           case 'quarantine': return claimStyles.quarantine
-          default: return priorityColour(feature)
+          default: return priorityStyles(feature)
         }
       },
       onEachFeature: function (feature, featureLayer) {
@@ -128,7 +126,7 @@ function makeMap() {
 
         this.btnUnclaim = function (featureLayer) {
           $.post("/unclaim_meshblock/" + this._leaflet_id);
-          this.setStyle(claimStyles.unclaimed)
+          this.setStyle(claimStyles.firstQuartile)
           $('.unclaim').addClass('hidden');
           $('.download').addClass('hidden');
           $('.claim').removeClass('hidden');
@@ -274,10 +272,11 @@ function makeMap() {
   legend.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'legend');
     div.innerHTML = [
-      '<i style="background:', claimStyles.claimed_by_you.fillColor, '"></i><div>My area</div>',
+      '<i style="background:', claimStyles.fourthQuartile.fillColor, '"></i><div>Higher Priority</div>',
+      '<i style="background:', claimStyles.firstQuartile.fillColor, '"></i><div>Lower Priority</div>',
       '<i style="background:', claimStyles.claimed.fillColor, '"></i><div>Claimed</div>',
-      '<i style="background:', claimStyles.quarantine.fillColor, '"></i><div>Organised door knocking event</div>',
-      '<i style="background:', claimStyles.unclaimed.fillColor, '"></i><div>Yet to be claimed!</div>'
+      '<i style="background:', claimStyles.claimed_by_you.fillColor, '"></i><div>My area</div>',
+      '<i style="background:', claimStyles.quarantine.fillColor, '"></i><div>Organised event</div>',
     ].join('');
     return div;
   }
