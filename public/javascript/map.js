@@ -62,6 +62,12 @@ function makeMap() {
 
   FindLocation();
 
+  function priorityColour(feature) {
+    var style = $.extend({}, claimStyles.unclaimed)
+    style.fillOpacity = feature.properties.avg_swing_propensity
+    return style
+  }
+
   function addGeoJsonProperties(json) {
 
     var layer = L.geoJson(json, {
@@ -70,7 +76,7 @@ function makeMap() {
           case 'claimed_by_you': return claimStyles.claimed_by_you
           case 'claimed': return claimStyles.claimed
           case 'quarantine': return claimStyles.quarantine
-          default: return claimStyles.unclaimed
+          default: return priorityColour(feature)
         }
       },
       onEachFeature: function (feature, featureLayer) {
