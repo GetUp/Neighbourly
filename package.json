@@ -1,0 +1,7 @@
+{
+  "name": "neighbourly",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^5.13.0"
+  }
+}
