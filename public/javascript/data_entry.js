@@ -7391,17 +7391,20 @@ var author$project$Main$Survey = F5(
 	function (gnaf_pid, block_id, survey_on, updated_at, responses) {
 		return {block_id: block_id, gnaf_pid: gnaf_pid, responses: responses, survey_on: survey_on, updated_at: updated_at};
 	});
-var author$project$Main$SurveyResponses = F5(
-	function (outcome, mp_support_before, mp_support_after, key_issue, notes) {
-		return {key_issue: key_issue, mp_support_after: mp_support_after, mp_support_before: mp_support_before, notes: notes, outcome: outcome};
+var author$project$Main$SurveyResponses = F8(
+	function (outcome, mp_support_before, mp_support_after, get_involved, name, phone, key_issue, notes) {
+		return {get_involved: get_involved, key_issue: key_issue, mp_support_after: mp_support_after, mp_support_before: mp_support_before, name: name, notes: notes, outcome: outcome, phone: phone};
 	});
-var elm$json$Json$Decode$map5 = _Json_map5;
-var author$project$Main$responsesDecoder = A6(
-	elm$json$Json$Decode$map5,
+var elm$json$Json$Decode$map8 = _Json_map8;
+var author$project$Main$responsesDecoder = A9(
+	elm$json$Json$Decode$map8,
 	author$project$Main$SurveyResponses,
 	A2(elm$json$Json$Decode$field, 'outcome', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'mp_support_before', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'mp_support_after', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'get_involved', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'name', elm$json$Json$Decode$string),
+	A2(elm$json$Json$Decode$field, 'phone', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'key_issue', elm$json$Json$Decode$string),
 	A2(elm$json$Json$Decode$field, 'notes', elm$json$Json$Decode$string));
 var elm$json$Json$Decode$fail = _Json_fail;
@@ -7422,6 +7425,7 @@ var elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
 	});
+var elm$json$Json$Decode$map5 = _Json_map5;
 var author$project$Main$surveyDecoder = A6(
 	elm$json$Json$Decode$map5,
 	author$project$Main$Survey,
@@ -8368,6 +8372,15 @@ var author$project$Main$surveyToJson = function (survey) {
 								'mp_support_after',
 								elm$json$Json$Encode$string(survey.responses.mp_support_after)),
 								_Utils_Tuple2(
+								'get_involved',
+								elm$json$Json$Encode$string(survey.responses.get_involved)),
+								_Utils_Tuple2(
+								'name',
+								elm$json$Json$Encode$string(survey.responses.name)),
+								_Utils_Tuple2(
+								'phone',
+								elm$json$Json$Encode$string(survey.responses.phone)),
+								_Utils_Tuple2(
 								'key_issue',
 								elm$json$Json$Encode$string(survey.responses.key_issue)),
 								_Utils_Tuple2(
@@ -8496,6 +8509,48 @@ var author$project$Main$update = F2(
 							return _Utils_update(
 								r,
 								{mp_support_after: newValue});
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'UpdateGetInvolved':
+				var survey = msg.a;
+				var newValue = msg.b;
+				return _Utils_Tuple2(
+					A3(
+						updateModelWithSurveyResponse,
+						model,
+						survey,
+						function (r) {
+							return _Utils_update(
+								r,
+								{get_involved: newValue});
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'UpdateName':
+				var survey = msg.a;
+				var newValue = msg.b;
+				return _Utils_Tuple2(
+					A3(
+						updateModelWithSurveyResponse,
+						model,
+						survey,
+						function (r) {
+							return _Utils_update(
+								r,
+								{name: newValue});
+						}),
+					elm$core$Platform$Cmd$none);
+			case 'UpdatePhone':
+				var survey = msg.a;
+				var newValue = msg.b;
+				return _Utils_Tuple2(
+					A3(
+						updateModelWithSurveyResponse,
+						model,
+						survey,
+						function (r) {
+							return _Utils_update(
+								r,
+								{phone: newValue});
 						}),
 					elm$core$Platform$Cmd$none);
 			case 'UpdateKeyIssue':
@@ -9718,13 +9773,13 @@ var author$project$Main$canvasHeader = F2(
 			switch (campaign) {
 				case 'Dickson':
 					return _List_fromArray(
-						[street, 'Outcome', 'Dutton Support Before', 'Dutton Support After', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+						[street, 'Outcome', 'Dutton Support Before', 'Dutton Support After', 'Get involved', 'Name', 'Phone', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
 				case 'Warringah':
 					return _List_fromArray(
-						[street, 'Outcome', 'Abbott Support Before', 'Abbott Support After', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+						[street, 'Outcome', 'Abbott Support Before', 'Abbott Support After', 'Get involved', 'Name', 'Phone', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
 				default:
 					return _List_fromArray(
-						[street, 'Outcome', 'MP Support Before', 'MP Support After', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
+						[street, 'Outcome', 'MP Support Before', 'MP Support After', 'Get involved', 'Name', 'Phone', 'Key Issue', 'Notes', 'Last saved', 'Actions']);
 			}
 		}();
 		var headerRow = function (header) {
@@ -9747,6 +9802,10 @@ var author$project$Main$canvasHeader = F2(
 var author$project$Main$SaveSurvey = function (a) {
 	return {$: 'SaveSurvey', a: a};
 };
+var author$project$Main$UpdateGetInvolved = F2(
+	function (a, b) {
+		return {$: 'UpdateGetInvolved', a: a, b: b};
+	});
 var author$project$Main$UpdateKeyIssue = F2(
 	function (a, b) {
 		return {$: 'UpdateKeyIssue', a: a, b: b};
@@ -9759,6 +9818,10 @@ var author$project$Main$UpdateMpSupportBefore = F2(
 	function (a, b) {
 		return {$: 'UpdateMpSupportBefore', a: a, b: b};
 	});
+var author$project$Main$UpdateName = F2(
+	function (a, b) {
+		return {$: 'UpdateName', a: a, b: b};
+	});
 var author$project$Main$UpdateNotes = F2(
 	function (a, b) {
 		return {$: 'UpdateNotes', a: a, b: b};
@@ -9766,6 +9829,10 @@ var author$project$Main$UpdateNotes = F2(
 var author$project$Main$UpdateOutcome = F2(
 	function (a, b) {
 		return {$: 'UpdateOutcome', a: a, b: b};
+	});
+var author$project$Main$UpdatePhone = F2(
+	function (a, b) {
+		return {$: 'UpdatePhone', a: a, b: b};
 	});
 var author$project$Main$booleanAnswer = _List_fromArray(
 	['', 'yes', 'no']);
@@ -9814,7 +9881,7 @@ var author$project$Main$emptySurvey = F3(
 		return {
 			block_id: block_id,
 			gnaf_pid: gnaf_pid,
-			responses: {key_issue: '', mp_support_after: '', mp_support_before: '', notes: '', outcome: ''},
+			responses: {get_involved: 'no', key_issue: '', mp_support_after: '', mp_support_before: '', name: '', notes: '', outcome: '', phone: ''},
 			survey_on: survey_on,
 			updated_at: ''
 		};
@@ -9918,6 +9985,66 @@ var author$project$Main$viewCanvas = F2(
 									author$project$Main$UpdateMpSupportAfter(survey))
 								]),
 							A2(answerOptionsForCampaign, 'mp_support_after', survey.responses.mp_support_after))
+						])),
+					A2(
+					elm$html$Html$td,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$select,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
+									elm$html$Html$Events$onInput(
+									author$project$Main$UpdateGetInvolved(survey))
+								]),
+							A2(answerOptionsForCampaign, 'get_involved', survey.responses.get_involved))
+						])),
+					A2(
+					elm$html$Html$td,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
+									elm$html$Html$Events$onInput(
+									author$project$Main$UpdateName(survey))
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(survey.responses.name)
+								]))
+						])),
+					A2(
+					elm$html$Html$td,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('mdl-data-table__cell--non-numeric')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$input,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$disabled(disabledUnlessMeaningful),
+									elm$html$Html$Events$onInput(
+									author$project$Main$UpdatePhone(survey))
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text(survey.responses.phone)
+								]))
 						])),
 					A2(
 					elm$html$Html$td,

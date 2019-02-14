@@ -9,7 +9,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 import Http
-import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, string)
+import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map8, string)
 import Json.Encode
 import Task
 import Url.Builder as Url
@@ -67,6 +67,9 @@ type alias SurveyResponses =
     { outcome : SurveyResponse
     , mp_support_before : SurveyResponse
     , mp_support_after : SurveyResponse
+    , get_involved : SurveyResponse
+    , name : SurveyResponse
+    , phone : SurveyResponse
     , key_issue : SurveyResponse
     , notes : SurveyResponse
     }
@@ -91,6 +94,9 @@ emptySurvey gnaf_pid block_id survey_on =
         { outcome = ""
         , mp_support_before = ""
         , mp_support_after = ""
+        , get_involved = "no"
+        , name = ""
+        , phone = ""
         , key_issue = ""
         , notes = ""
         }
@@ -118,11 +124,14 @@ surveysDecoder =
 
 responsesDecoder : Decoder SurveyResponses
 responsesDecoder =
-    map5
+    map8
         SurveyResponses
         (field "outcome" string)
         (field "mp_support_before" string)
         (field "mp_support_after" string)
+        (field "get_involved" string)
+        (field "name" string)
+        (field "phone" string)
         (field "key_issue" string)
         (field "notes" string)
 
@@ -180,6 +189,9 @@ surveyToJson survey =
                         [ ( "outcome", Json.Encode.string survey.responses.outcome )
                         , ( "mp_support_before", Json.Encode.string survey.responses.mp_support_before )
                         , ( "mp_support_after", Json.Encode.string survey.responses.mp_support_after )
+                        , ( "get_involved", Json.Encode.string survey.responses.get_involved )
+                        , ( "name", Json.Encode.string survey.responses.name )
+                        , ( "phone", Json.Encode.string survey.responses.phone )
                         , ( "key_issue", Json.Encode.string survey.responses.key_issue )
                         , ( "notes", Json.Encode.string survey.responses.notes )
                         ]
@@ -242,6 +254,9 @@ type Msg
     | UpdateOutcome Survey String
     | UpdateMpSupportBefore Survey String
     | UpdateMpSupportAfter Survey String
+    | UpdateGetInvolved Survey String
+    | UpdateName Survey String
+    | UpdatePhone Survey String
     | UpdateKeyIssue Survey String
     | UpdateNotes Survey String
     | SaveSurvey Survey
@@ -285,6 +300,15 @@ update msg model =
 
         UpdateMpSupportAfter survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | mp_support_after = newValue }), Cmd.none )
+
+        UpdateGetInvolved survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | get_involved = newValue }), Cmd.none )
+
+        UpdateName survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | name = newValue }), Cmd.none )
+
+        UpdatePhone survey newValue ->
+            ( updateModelWithSurveyResponse model survey (\r -> { r | phone = newValue }), Cmd.none )
 
         UpdateKeyIssue survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | key_issue = newValue }), Cmd.none )
@@ -447,13 +471,13 @@ canvasHeader campaign street =
         headers =
             case campaign of
                 "Dickson" ->
-                    [ street, "Outcome", "Dutton Support Before", "Dutton Support After", "Key Issue", "Notes", "Last saved", "Actions" ]
+                    [ street, "Outcome", "Dutton Support Before", "Dutton Support After", "Get involved", "Name", "Phone", "Key Issue", "Notes", "Last saved", "Actions" ]
 
                 "Warringah" ->
-                    [ street, "Outcome", "Abbott Support Before", "Abbott Support After", "Key Issue", "Notes", "Last saved", "Actions" ]
+                    [ street, "Outcome", "Abbott Support Before", "Abbott Support After", "Get involved", "Name", "Phone", "Key Issue", "Notes", "Last saved", "Actions" ]
 
                 _ ->
-                    [ street, "Outcome", "MP Support Before", "MP Support After", "Key Issue", "Notes", "Last saved", "Actions" ]
+                    [ street, "Outcome", "MP Support Before", "MP Support After", "Get involved", "Name", "Phone", "Key Issue", "Notes", "Last saved", "Actions" ]
 
         headerRow : String -> Html Msg
         headerRow header =
@@ -486,6 +510,12 @@ viewCanvas model address =
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupportBefore survey) ] (answerOptionsForCampaign "mp_support_before" survey.responses.mp_support_before) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupportAfter survey) ] (answerOptionsForCampaign "mp_support_after" survey.responses.mp_support_after) ]
+        , td [ class "mdl-data-table__cell--non-numeric" ]
+            [ select [ disabled disabledUnlessMeaningful, onInput (UpdateGetInvolved survey) ] (answerOptionsForCampaign "get_involved" survey.responses.get_involved) ]
+        , td [ class "mdl-data-table__cell--non-numeric" ]
+            [ input [ disabled disabledUnlessMeaningful, onInput (UpdateName survey) ] [ text survey.responses.name ] ]
+        , td [ class "mdl-data-table__cell--non-numeric" ]
+            [ input [ disabled disabledUnlessMeaningful, onInput (UpdatePhone survey) ] [ text survey.responses.phone ] ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptionsForCampaign "key_issue" survey.responses.key_issue) ]
         , td [ class "mdl-data-table__cell--non-numeric" ]
