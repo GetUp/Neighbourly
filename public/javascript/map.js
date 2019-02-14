@@ -326,3 +326,13 @@ $('#faqlink').click(openHelp)
 var helpSeen = 'false'
 try { helpSeen = window.localStorage.getItem('helpSeen') } catch (_) { }
 if (helpSeen !== 'true') $(window).load(openHelp)
+
+
+$('#campaign').change(function () {
+  var campaign = $('#campaign').val()
+  try { window.localStorage.setItem('campaign', campaign) } catch (_) { }
+})
+
+var campaign
+try { campaign = window.localStorage.getItem('campaign') } catch (_) { }
+$('#campaign').val(campaign || 'warringah') //default b/c decentralised
