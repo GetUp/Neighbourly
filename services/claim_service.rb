@@ -33,6 +33,12 @@ class ClaimService
     .delete
   end
 
+  def data_entry_unclaim(mesh_block)
+    @db[:claims]
+      .where(mesh_block_slug: mesh_block)
+      .delete
+  end
+
   private
 
   def claimer_details(email)

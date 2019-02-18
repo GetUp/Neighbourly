@@ -20,6 +20,7 @@ require_relative "models/user"
 Dotenv.load
 enable :sessions
 set :session_secret, ENV["SECRET_KEY_BASE"]
+set :unclaim_token, ENV['DATA_ENTRY_UNCLAIM_TOKEN']
 
 def test_db_connection
   Sequel.connect(ENV['SNAP_DB_PG_URL'] || "postgres://localhost/neighbourly_test")
@@ -226,4 +227,15 @@ post '/survey' do
   authorised do
     haml :data_entry, locals: {page: 'data_entry'}
   end
+end
+
+post '/unclaim_from_data_entry' do
+  data = JSON.parse request.body.read
+
+  return 400 unless settings.unclaim_token &&
+    settings.unclaim_token.length > 5 &&
+    settings.unclaim_token == data['token']
+
+  ClaimService.new(settings.db).data_entry_unclaim(data['id'])
+  status 200
 end
