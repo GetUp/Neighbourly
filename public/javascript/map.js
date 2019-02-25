@@ -86,9 +86,13 @@ function makeMap() {
         featureLayer._leaflet_id = feature.properties.slug
 
         function downloadmesh(mesh_id) {
-          var campaign = $('#campaign').val()
-          var url = LAMBDA_BASE_URL + '/map?slug=' + mesh_id + '&campaign=' + campaign
-          $.get(url, function (base64str) {
+          var options = {
+            slug: mesh_id,
+            campaign: $('#campaign').val(),
+            template: $('#template').val()
+          }
+          var url = LAMBDA_BASE_URL + '/map'
+          $.get(url, options, function (base64str) {
             if (base64str.message == 'Internal server error') {
               return alert('This area cannot be downloaded due to a pdf rendering error, please try another area.')
             }
@@ -336,3 +340,13 @@ $('#campaign').change(function () {
 var campaign
 try { campaign = window.localStorage.getItem('campaign') } catch (_) { }
 $('#campaign').val(campaign || 'warringah') //default b/c decentralised
+
+$('#template').change(function () {
+  var template = $('#template').val()
+  try { window.localStorage.setItem('template', template) } catch (_) { }
+})
+
+try {
+  var template = window.localStorage.getItem('template')
+  if (template) $('#template').val(template)
+} catch (_) { }

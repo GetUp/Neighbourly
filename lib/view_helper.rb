@@ -15,6 +15,14 @@ module Sinatra
         ]
       end
 
+      def templates
+        [
+          {value: '', label: 'If applicable, select template type before claiming'},
+          {value: 'hidden', label: 'Hide knocked doors'},
+          {value: 'previous_results', label: 'Show previous results'},
+        ]
+      end
+
       def versioned_stylesheet(stylesheet)
         "/stylesheets/#{stylesheet}.css?" + File.mtime(File.join("public", "stylesheets", "#{stylesheet}.css")).to_i.to_s
       end

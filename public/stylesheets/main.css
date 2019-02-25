@@ -303,3 +303,8 @@ table.highlight-focus tr:focus-within td:focus-within {
 #campaign {
   margin-top: 10px;
 }
+
+select.form-control.half-width {
+  display: inline-block;
+  width: 49%;
+}
