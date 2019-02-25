@@ -336,7 +336,6 @@ $('#campaign').change(function () {
   var campaign = $('#campaign').val()
   try { window.localStorage.setItem('campaign', campaign) } catch (_) { }
 })
-
 var campaign
 try { campaign = window.localStorage.getItem('campaign') } catch (_) { }
 $('#campaign').val(campaign || 'warringah') //default b/c decentralised
@@ -345,8 +344,6 @@ $('#template').change(function () {
   var template = $('#template').val()
   try { window.localStorage.setItem('template', template) } catch (_) { }
 })
-
-try {
-  var template = window.localStorage.getItem('template')
-  if (template) $('#template').val(template)
-} catch (_) { }
+var template
+try { template = window.localStorage.getItem('template') } catch (_) { }
+$('#template').val(template || 'hidden')
