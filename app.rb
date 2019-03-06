@@ -23,11 +23,11 @@ set :session_secret, ENV["SECRET_KEY_BASE"]
 set :unclaim_token, ENV['DATA_ENTRY_UNCLAIM_TOKEN']
 
 def test_db_connection
-  Sequel.connect(ENV['SNAP_DB_PG_URL'] || "postgres://localhost/neighbourly_test")
+  Sequel.connect(ENV['TEST_DATABASE_URL'] || "postgres://localhost/neighbourly_test")
 end
 
 configure do
-  db = Sequel.connect('postgres://localhost/neighbourly')
+  db = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://localhost/neighbourly')
   set :db, db
 end
 
