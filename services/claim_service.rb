@@ -6,8 +6,9 @@ class ClaimService
   end
 
   def claims(slugs)
-    @db[:claims].
-      where('mesh_block_slug IN ?', slugs.map(&:to_s))
+    @db[:claims]
+      .where('deleted_at is NULL')
+      .where('mesh_block_slug IN ?', slugs.map(&:to_s))
   end
 
   def claim(mesh_block, claimer)
@@ -16,9 +17,9 @@ class ClaimService
 
   def unclaim(mesh_block, unclaimer)
     @db[:claims]
-    .where(mesh_block_claimer: unclaimer)
-    .where(mesh_block_slug: mesh_block)
-    .delete
+      .where(mesh_block_claimer: unclaimer)
+      .where(mesh_block_slug: mesh_block)
+      .update(deleted_at: Time.now)
   end
 
   def admin_unclaim(mesh_block)
@@ -28,15 +29,15 @@ class ClaimService
     }.join(' OR ')
 
     @db[:claims]
-    .where(mesh_block_slug: mesh_block)
-    .where(domain_conditions)
-    .delete
+      .where(mesh_block_slug: mesh_block)
+      .where(domain_conditions)
+      .update(deleted_at: Time.now)
   end
 
   def data_entry_unclaim(mesh_block)
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
-      .delete
+      .update(deleted_at: Time.now)
   end
 
   private
