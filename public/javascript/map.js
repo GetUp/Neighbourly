@@ -72,6 +72,7 @@ function makeMap() {
   }
 
   function addGeoJsonProperties(json) {
+    var admin = $('#map').data('is-admin') === true
 
     var layer = L.geoJson(json, {
       style: function (feature) {
@@ -124,7 +125,7 @@ function makeMap() {
           $('.unclaim').removeClass('hidden')
           $('.download').removeClass('hidden')
           $('.claim').addClass('hidden')
-          if ($('#map').data('is-admin') === true) {
+          if (admin) {
             this.setStyle(claimStyles.quarantine)
           } else {
             this.setStyle(claimStyles.claimed_by_you)
@@ -138,6 +139,8 @@ function makeMap() {
           this.setStyle(claimStyles.firstQuartile)
           $('.unclaim').addClass('hidden')
           $('.download').addClass('hidden')
+          $('.admin-unclaim').addClass('hidden')
+          $('.admin-download').addClass('hidden')
           $('.claim').removeClass('hidden')
         }
 
@@ -167,43 +170,46 @@ function makeMap() {
         }
 
         var container = L.DomUtil.create('div')
-        var claimout = create_popup_btn(container, 'claim', 'Claim + Download',
-          'Click to claim area and download PDF of addresses to doorknock.<br>')
+        var claimout = create_popup_btn(container, 'claim', 'Claim + Download', 'Click to claim area and download PDF of addresses to doorknock.<br>')
         claimout.btndom.addListener(claimout.btn, 'click', this.btnClaim, featureLayer)
-        var unclaimout = create_popup_btn(container, 'unclaim', 'Unclaim',
-          'Click to remove your claim on this area.<br>')
+        var unclaimout = create_popup_btn(container, 'unclaim', 'Unclaim', 'Click to remove your claim on this area.<br>')
         unclaimout.btndom.addListener(unclaimout.btn, 'click', this.btnUnclaim, featureLayer)
-        var downloadout = create_popup_btn(container, 'download', 'Download',
-          'Click to download your claimed area.<br>')
+        var downloadout = create_popup_btn(container, 'download', 'Download', 'Click to download your claimed area.<br>')
         downloadout.btndom.addListener(downloadout.btn, 'click', this.btnDownload, featureLayer)
+        var adminUnclaim = create_popup_btn(container, 'admin-unclaim', 'Admin Unclaim', 'Click to remove the claim on this area.<br>')
+        adminUnclaim.btndom.addListener(adminUnclaim.btn, 'click', this.btnUnclaim, featureLayer)
+        var adminDownload = create_popup_btn(container, 'admin-download', 'Download', 'Click to download the claimed area.<br>')
+        adminDownload.btndom.addListener(adminDownload.btn, 'click', this.btnDownload, featureLayer)
         var otherstxtcontainer = L.DomUtil.create('div', 'popuptxt hidden otherstext', container)
         otherstxtcontainer.innerHTML = 'This area is claimed by someone else and is unable to be claimed.'
         var quarantinetxtcontainer = L.DomUtil.create('div', 'popuptxt hidden quarantinetext', container)
         quarantinetxtcontainer.innerHTML = 'This area is coordinated by a central event. ' +
           '<a href="' + $('#map').data('central-events-url') + '" target="_blank">Click here</a> to find it.'
-        var popup
+
         if (feature.properties.claim_status === 'claimed_by_you') {
           L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
           L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
-          popup = L.popup({}, featureLayer).setContent(container)
         }
         else if (feature.properties.claim_status === 'claimed') {
-          L.DomUtil.removeClass(otherstxtcontainer, 'hidden')
-          popup = L.popup({}, featureLayer).setContent(container)
+          if (admin) {
+            L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
+            L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
+          } else {
+            L.DomUtil.removeClass(otherstxtcontainer, 'hidden')
+          }
         }
         else if (feature.properties.claim_status === 'quarantine') {
-          if ($('#map').data('is-admin') === true) {
+          if (admin) {
             L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
             L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
           } else {
             L.DomUtil.removeClass(quarantinetxtcontainer, 'hidden')
           }
-          popup = L.popup({}, featureLayer).setContent(container)
         }
         else {
           L.DomUtil.removeClass(claimout.grpdiv, 'hidden')
-          popup = L.popup({}, featureLayer).setContent(container)
         }
+        var popup = L.popup({}, featureLayer).setContent(container)
         featureLayer.bindPopup(popup)
 
       }

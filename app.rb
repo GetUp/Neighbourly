@@ -211,7 +211,9 @@ post '/unclaim_meshblock/:id' do
     claim_service = ClaimService.new(settings.db)
     #TODO - return error on fail
     if is_admin?(user_email)
-      claim_service.admin_unclaim(params['id'])
+      ENV['ADMIN_UNCLAIM_ANY'] == 'true' \
+        ? claim_service.data_entry_unclaim(params['id']) \
+        : claim_service.admin_unclaim(params['id'])
     else
       claim_service.unclaim(params['id'], user_email)
     end
