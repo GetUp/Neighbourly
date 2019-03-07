@@ -11,6 +11,7 @@ function makeMap() {
   }
 
   var map = L.map('map')
+  window.leafletMap = map
 
   var mesh_layer //Rendered map
   var last_update_bounds
@@ -170,6 +171,17 @@ function makeMap() {
         }
 
         var container = L.DomUtil.create('div')
+
+        L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = 'Code: ' + feature.properties.slug
+        if (feature.properties.total_addresses_on_block > 0) {
+          var doors_remaining = feature.properties.total_addresses_on_block - feature.properties.outcomes_recorded
+          L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = '# of doors remaining to knock: ' + doors_remaining
+          if ($('#template').val() === 'previous_results') {
+            L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = '# of voters we\'d like to speak to again: ' + feature.properties.outcomes_recorded
+          }
+        }
+        L.DomUtil.create('hr', 'smaller-margin', container)
+
         var claimout = create_popup_btn(container, 'claim', 'Claim + Download', 'Click to claim area and download PDF of addresses to doorknock.<br>')
         claimout.btndom.addListener(claimout.btn, 'click', this.btnClaim, featureLayer)
         var unclaimout = create_popup_btn(container, 'unclaim', 'Unclaim', 'Click to remove your claim on this area.<br>')
@@ -241,7 +253,7 @@ function makeMap() {
 
   instruct.addTo(map)
 
-  function updateMap() {
+  function updateMap(force) {
     var distance_moved, reload_dist
     var lat_lng_bnd = map.getBounds()
     var lat_lng_centroid = map.getCenter()
@@ -264,8 +276,11 @@ function makeMap() {
     //Distance moved is not short
     //and
     //there is no last_update or the current map bounds are not within the last update's
-    if (zoom > 14 && (!last_update_bounds || distance_moved > reload_dist) &&
-      (!last_update_bounds || !last_update_bounds.contains(lat_lng_bnd))) {
+    var moveTrigger = zoom > 14
+      && (!last_update_bounds || distance_moved > reload_dist)
+      && (!last_update_bounds || !last_update_bounds.contains(lat_lng_bnd))
+
+    if (moveTrigger || force) {
       $('#load').removeClass('hidden')
 
       var data = {
@@ -303,6 +318,7 @@ function makeMap() {
 
   legend.addTo(map)
   map.whenReady(updateMap)
+  return updateMap
 }
 
 
@@ -317,7 +333,7 @@ var headerHeight = $('.header').height()
 var LAMBDA_BASE_URL = $('#map').data('lambda-base-url')
 $('#map').height(windowHeight() - headerHeight)
 $('#map').width('100%')
-makeMap()
+var updateLeafletMap = makeMap()
 
 
 function openHelp() {
@@ -349,6 +365,7 @@ $('#campaign').val(campaign || 'warringah') //default b/c decentralised
 $('#template').change(function () {
   var template = $('#template').val()
   try { window.localStorage.setItem('template', template) } catch (_) { }
+  updateLeafletMap(true)
 })
 var template
 try { template = window.localStorage.getItem('template') } catch (_) { }

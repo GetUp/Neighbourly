@@ -263,6 +263,14 @@
   text-align: center;
 }
 
+.normal-size {
+  font-size: 100%;
+}
+
+.smaller-margin {
+  margin: 10px;
+}
+
 .popupbutton {
   font-size: large;
   display: flex;
