@@ -293,6 +293,7 @@ function makeMap() {
       $.getJSON('/meshblocks_bounds', data, getMeshblockCallback)
         .fail(function () {
           $('#load').addClass('hidden')
+          alert('Error loading meshblocks. Please reload the page.')
         })
     }
     instruct.update()
