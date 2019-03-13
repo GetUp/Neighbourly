@@ -221,7 +221,7 @@ function makeMap() {
 
         featureLayer.on('mouseover', function () {
           var total_addresses = feature.properties.total_addresses_on_block
-          var outcomes = feature.properties.outcomes_recorded
+          var outcomes = feature.properties.outcomes_recorded || 0
           var meta = ['No data']
           if (total_addresses > 0) {
             var doors_remaining = total_addresses - outcomes
