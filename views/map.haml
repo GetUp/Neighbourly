@@ -1,5 +1,6 @@
 .map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": ENV['LAMBDA_BASE_URL']}
-.div.hidden{id: "dialog", title: "FAQ"}
+.block-stats-hover
+.hidden{id: "dialog", title: "FAQ"}
   .faq-intro
     %p Welcome to the doorknocking tool!
     %p Once you click out of this pop up, you’ll be able to zoom in and claim a local block or blocks to doorknock.

@@ -316,3 +316,17 @@ select.form-control.half-width {
   display: inline-block;
   width: 49%;
 }
+
+.block-stats-hover {
+  width: 340px;
+  height: 64px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background-color: #337ab7;
+  z-index: 1000;
+  padding: 8px;
+  font-weight: bold;
+  border-radius: 5px;
+  color: white;
+}

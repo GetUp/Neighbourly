@@ -74,6 +74,8 @@ function makeMap() {
 
   function addGeoJsonProperties(json) {
     var admin = $('#map').data('is-admin') === true
+    var statsContainer = $('.block-stats-hover')
+    var template = $('#template').val()
 
     var layer = L.geoJson(json, {
       style: function (feature) {
@@ -91,7 +93,7 @@ function makeMap() {
           var options = {
             slug: mesh_id,
             campaign: $('#campaign').val(),
-            template: $('#template').val()
+            template: template
           }
           var url = LAMBDA_BASE_URL + '/map'
           $.get(url, options, function (base64str) {
@@ -173,13 +175,6 @@ function makeMap() {
         var container = L.DomUtil.create('div')
 
         L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = 'Code: ' + feature.properties.slug
-        if (feature.properties.total_addresses_on_block > 0) {
-          var doors_remaining = feature.properties.total_addresses_on_block - feature.properties.outcomes_recorded
-          L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = '# of doors remaining to knock: ' + doors_remaining
-          if ($('#template').val() === 'previous_results') {
-            L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = '# of voters we\'d like to speak to again: ' + feature.properties.outcomes_recorded
-          }
-        }
         L.DomUtil.create('hr', 'smaller-margin', container)
 
         var claimout = create_popup_btn(container, 'claim', 'Claim + Download', 'Click to claim area and download PDF of addresses to doorknock.<br>')
@@ -224,6 +219,20 @@ function makeMap() {
         var popup = L.popup({}, featureLayer).setContent(container)
         featureLayer.bindPopup(popup)
 
+        featureLayer.on('mouseover', function () {
+          var total_addresses = feature.properties.total_addresses_on_block
+          var outcomes = feature.properties.outcomes_recorded
+          var meta = ['No data']
+          if (total_addresses > 0) {
+            var doors_remaining = total_addresses - outcomes
+            var percent = Math.round(doors_remaining * 100.0 / total_addresses)
+            meta[0] = '# of doors remaining to knock: ' + doors_remaining + ' (' + percent + '%)'
+            if (template === 'previous_results') {
+              meta.unshift('# of voters we\'d like to speak to again: ' + outcomes)
+            }
+          }
+          statsContainer.html(meta.join('<br>'))
+        })
       }
     })
 
