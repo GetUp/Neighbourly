@@ -318,7 +318,7 @@ select.form-control.half-width {
 }
 
 .block-stats-hover {
-  width: 340px;
+  min-width: 350px;
   height: 64px;
   position: absolute;
   bottom: 0;
