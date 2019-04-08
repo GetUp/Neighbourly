@@ -289,7 +289,9 @@ function makeMap() {
       && (!last_update_bounds || distance_moved > reload_dist)
       && (!last_update_bounds || !last_update_bounds.contains(lat_lng_bnd))
 
-    if (moveTrigger || force) {
+    var forceAllowed = force && zoom > 14
+
+    if (moveTrigger || forceAllowed) {
       $('#load').removeClass('hidden')
 
       var data = {
