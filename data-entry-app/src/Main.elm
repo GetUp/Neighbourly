@@ -1,6 +1,7 @@
 module Main exposing (Model, ValidationStatus(..), view)
 
 import Browser
+import Browser.Navigation
 import Date exposing (Date, day, month, today, weekday, year)
 import DatePicker exposing (DateEvent(..), defaultSettings)
 import Debug exposing (toString)
@@ -12,11 +13,21 @@ import Http
 import Json.Decode exposing (Decoder, andThen, at, dict, field, int, list, map3, map5, map8, string)
 import Json.Encode
 import Task
-import Url.Builder as Url
+import Url
+import Url.Builder
+import Url.Parser
+import Url.Parser.Query
 
 
 main =
-    Browser.element { init = init, subscriptions = subscriptions, update = update, view = view }
+    Browser.application
+        { init = init
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
+        , subscriptions = subscriptions
+        , update = update
+        , view = view
+        }
 
 
 
@@ -173,6 +184,11 @@ getAddressesForBlockId id survey_on =
 -- JSON Encoder --
 
 
+canvasToJson : Canvas -> Json.Encode.Value
+canvasToJson canvas =
+    Json.Encode.dict identity surveyToJson canvas
+
+
 surveyToJson : Survey -> Json.Encode.Value
 surveyToJson survey =
     case survey.survey_on of
@@ -206,9 +222,18 @@ surveyToJson survey =
 upsertSurvey : Survey -> Cmd Msg
 upsertSurvey survey =
     Http.post
-        { url = Url.crossOrigin apiBase [ "prod", "survey" ] []
+        { url = Url.Builder.crossOrigin apiBase [ "prod", "survey" ] []
         , body = Http.jsonBody (surveyToJson survey)
         , expect = Http.expectJson LoadSurvey surveyDecoder
+        }
+
+
+upsertCanvas : Canvas -> Cmd Msg
+upsertCanvas canvas =
+    Http.post
+        { url = Url.Builder.crossOrigin apiBase [ "prod", "surveys" ] []
+        , body = Http.jsonBody (canvasToJson canvas)
+        , expect = Http.expectJson LoadSurveys surveysDecoder
         }
 
 
@@ -238,11 +263,25 @@ apiBase =
 
 toUrl : BlockID -> Date -> String
 toUrl id survey_on =
-    Url.crossOrigin apiBase [ "prod", "addresses" ] [ Url.string "slug" id, Url.string "survey_on" (Date.toIsoString survey_on) ]
+    Url.Builder.crossOrigin apiBase [ "prod", "addresses" ] [ Url.Builder.string "slug" id, Url.Builder.string "survey_on" (Date.toIsoString survey_on) ]
 
 
 
 -- Update --
+
+
+validateAndGetAddresses : Model -> ( Model, Cmd Msg )
+validateAndGetAddresses model =
+    case model.date of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just existingDate ->
+            if String.length model.blockId == 11 then
+                ( { model | valid = Valid, status = "Loading..", addresses = [] }, getAddressesForBlockId model.blockId existingDate )
+
+            else
+                ( { model | valid = Invalid, status = validationMessage model.blockId, addresses = [] }, Cmd.none )
 
 
 type Msg
@@ -260,7 +299,11 @@ type Msg
     | UpdateKeyIssue Survey String
     | UpdateNotes Survey String
     | SaveSurvey Survey
+    | SaveCanvas Canvas
     | LoadSurvey (Result Http.Error Survey)
+    | LoadSurveys (Result Http.Error Canvas)
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -281,16 +324,7 @@ update msg model =
             ( { model | campaign = newCampaign }, Cmd.none )
 
         UpdateBlockID newBlockId ->
-            case model.date of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just existingDate ->
-                    if String.length newBlockId == 11 then
-                        ( { model | blockId = newBlockId, valid = Valid, status = "Loading..", addresses = [] }, getAddressesForBlockId newBlockId existingDate )
-
-                    else
-                        ( { model | blockId = newBlockId, valid = Invalid, status = validationMessage newBlockId, addresses = [] }, Cmd.none )
+            validateAndGetAddresses { model | blockId = newBlockId }
 
         UpdateOutcome survey newValue ->
             ( updateModelWithSurveyResponse model survey (\r -> { r | outcome = newValue }), Cmd.none )
@@ -319,6 +353,15 @@ update msg model =
         SaveSurvey survey ->
             ( model, upsertSurvey survey )
 
+        SaveCanvas canvas ->
+            ( model, upsertCanvas canvas )
+
+        UrlChanged url ->
+            ( model, Cmd.none )
+
+        LinkClicked urlRequest ->
+            ( model, Cmd.none )
+
         LoadAddresses result ->
             case result of
                 Ok newData ->
@@ -340,8 +383,16 @@ update msg model =
                 Err err ->
                     ( model, Cmd.none )
 
+        LoadSurveys result ->
+            case result of
+                Ok newCanvas ->
+                    ( { model | canvas = newCanvas }, Cmd.none )
+
+                Err err ->
+                    ( model, Cmd.none )
+
         SetDate date ->
-            ( { model | date = date }, Cmd.none )
+            validateAndGetAddresses { model | date = date }
 
         ToDatePicker subMsg ->
             let
@@ -467,23 +518,7 @@ viewCanvases model =
 
 canvasHeader : String -> String -> Html Msg
 canvasHeader campaign street =
-    let
-        headers =
-            case campaign of
-                "Dickson" ->
-                    [ street, "Outcome", "Dutton Support Before", "Dutton Support After", "Get involved", "Name", "Phone", "Key Issue", "Notes", "Last saved", "Actions" ]
-
-                "Warringah" ->
-                    [ street, "Outcome", "Abbott Support Before", "Abbott Support After", "Get involved", "Name", "Phone", "Key Issue", "Notes", "Last saved", "Actions" ]
-
-                _ ->
-                    [ street, "Outcome", "MP Support Before", "MP Support After", "Get involved", "Name", "Phone", "Key Issue", "Notes", "Last saved", "Actions" ]
-
-        headerRow : String -> Html Msg
-        headerRow header =
-            th [ class "mdl-data-table__cell--non-numeric" ] [ text header ]
-    in
-    tr [] <| List.map headerRow headers
+    li [ class "mdl-list__item" ] [ text street ]
 
 
 viewCanvas : Model -> Address -> Html Msg
@@ -501,29 +536,30 @@ viewCanvas model address =
         disabledUnlessMeaningful =
             survey.responses.outcome /= "meaningful conversation"
     in
-    tr []
-        [ td [ class "mdl-data-table__cell--non-numeric" ]
-            [ text (String.replace address.street "" address.address), br [] [], span [ class "small" ] [ text address.gnaf_pid ] ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ select [ onInput (UpdateOutcome survey) ] (answerOptionsForCampaign "outcome" survey.responses.outcome) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+    li [ class "mdl-list__item mdl-list__item--two-line" ]
+        [ span [ class "mdl-list__item-primary-content" ]
+            [ i [ class "material-icons mdl-list__item-icon" ] [ text "thumb_down" ]
+            , text (String.replace address.street "" address.address)
+            ]
+        , span [ class "mdl-list__item-secondary-content" ]
+            [ select [ onInput (UpdateOutcome survey), class "mdl-list__item-secondary-action" ] (answerOptionsForCampaign "outcome" survey.responses.outcome)
+            ]
+        , div [ class "hidden" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupportBefore survey) ] (answerOptionsForCampaign "mp_support_before" survey.responses.mp_support_before) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateMpSupportAfter survey) ] (answerOptionsForCampaign "mp_support_after" survey.responses.mp_support_after) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateGetInvolved survey) ] (answerOptionsForCampaign "get_involved" survey.responses.get_involved) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ input [ disabled disabledUnlessMeaningful, onInput (UpdateName survey) ] [ text survey.responses.name ] ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ input [ disabled disabledUnlessMeaningful, onInput (UpdatePhone survey) ] [ text survey.responses.phone ] ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ select [ disabled disabledUnlessMeaningful, onInput (UpdateKeyIssue survey) ] (answerOptionsForCampaign "key_issue" survey.responses.key_issue) ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ textarea [ disabled disabledUnlessMeaningful, onInput (UpdateNotes survey) ] [ text survey.responses.notes ] ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
+        , div [ class "hidden" ]
             [ span [ class "small" ] [ text (String.left 10 survey.updated_at) ] ]
-        , td [ class "mdl-data-table__cell--non-numeric" ]
-            [ button [ onClick (SaveSurvey survey), class "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" ] [ text "Save" ] ]
         ]
 
 
@@ -546,18 +582,13 @@ ifThen condition stringToAppend =
         ""
 
 
-hiddenUnlessDate : Maybe Date -> String
-hiddenUnlessDate maybeDate =
-    case maybeDate of
-        Nothing ->
-            "hidden"
-
-        Just _ ->
-            "initial"
-
-
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
+    { title = "Neightbourly Data Entry App", body = [ viewBody model ] }
+
+
+viewBody : Model -> Html Msg
+viewBody model =
     let
         hiddenClass =
             ifThen (model.addresses == []) "hidden"
@@ -573,32 +604,24 @@ view model =
                         |> Html.map ToDatePicker
                     , label [ class "mdl-textfield__label" ] [ text "Select the date of the doorknock" ]
                     ]
-                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px", style "visibility" (hiddenUnlessDate model.date) ]
+                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px" ]
                     [ select [ onInput UpdateCampaign, id "campaign", class "mdl-textfield__input" ] (campaignOptions model.campaign)
                     , label [ class "mdl-textfield__label", for "campaign" ] [ text "Campaign" ]
                     ]
-                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px", style "visibility" (hiddenUnlessDate model.date) ]
+                , div [ class "mdl-textfield mdl-js-textfield mdl-textfield--floating-label", style "margin-right" "10px" ]
                     [ input [ onInput UpdateBlockID, value model.blockId, id "block-id", class "mdl-textfield__input", type_ "text" ] []
                     , label [ class "mdl-textfield__label", for "block-id" ] [ text (statusMessage model) ]
                     ]
                 , div [ class ("mdl-progress mdl-js-progress mdl-progress__indeterminate" ++ loadingClass), style "width" "100%" ] []
-                , br [] []
-                , br [] []
-                , text "Quick hints:"
-                , ol []
-                    [ li [] [ text "Use the 'Tab' key to move between fields." ]
-                    , li [] [ text "On dropdowns, type the first first letter of an option to jump to it e.g. type 'm' to jump to \"meaningful conversation\"." ]
-                    , li [] [ text "On dropdowns, you can also use the arrow keys to move between options." ]
-                    , li [] [ text "Once you have selected an option press 'Enter' to select it." ]
-                    , li [] [ text "Press Enter while on the Save button to trigger it." ]
-                    ]
                 ]
             ]
         , div [ class "mdl-cell" ]
-            [ table
-                [ class ("mdl-data-table mdl-js-data-table mdl-shadow--2dp" ++ hiddenClass) ]
-                [ tbody [] (viewCanvases model) ]
+            [ ul
+                [ class ("mdl-list" ++ hiddenClass) ]
+                (viewCanvases model)
             ]
+        , div [ class "mdl-cell" ]
+            [ button [ onClick (SaveCanvas model.canvas), class "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" ] [ text "Save" ] ]
         ]
 
 
@@ -606,14 +629,25 @@ view model =
 --- Init --
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
+type alias InitQuery =
+    { blockid : Maybe String, campaign : Maybe String }
+
+
+init : () -> Url.Url -> Browser.Navigation.Key -> ( Model, Cmd Msg )
+init flags url key =
     let
         ( datePicker, datePickerFx ) =
             DatePicker.init
+
+        _ =
+            Debug.log "url: " url
+
+        parseParam : String -> String
+        parseParam param =
+            Maybe.withDefault "" (Maybe.withDefault Nothing (Url.Parser.parse (Url.Parser.query (Url.Parser.Query.string param)) url))
     in
-    ( { campaign = ""
-      , blockId = ""
+    ( { campaign = parseParam "campaign"
+      , blockId = parseParam "blockid"
       , status = ""
       , valid = Unknown
       , addresses = []
